@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        小兔貝貝的森林尋友記｜FocusTale
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="../style.css"
+    >
+</head>
+
+
+<body class="story-body">
+
+    <main class="story-page">
+
+        <section
+            id="storyScene"
+            class="story-scene"
+        >
+
+            <!-- ================================
+                 場景圖片
+            ================================= -->
+
+            <img
+                id="sceneImage"
+                class="scene-image"
+                src="../assets/images/scene1.png"
+                alt="小兔貝貝的森林尋友記"
+            >
+
+
+            <!-- ================================
+                 左上：回首頁 / 上一頁
+            ================================= -->
+
+            <button
+                id="backButton"
+                class="story-back-button"
+                onclick="previousStory()"
+                type="button"
+                aria-label="回首頁"
+            >
+                <span id="backButtonText">
+                    ⌂ 回首頁
+                </span>
+            </button>
+
+
+            <!-- ================================
+                 上方故事名稱
+            ================================= -->
+
+            <div class="story-name">
+                小兔貝貝的森林尋友記
+            </div>
+
+
+            <!-- ================================
+                 右上頁碼
+            ================================= -->
+
+            <div class="story-page-number">
+
+                <span id="currentPage">
+                    1
+                </span>
+
+                <span class="page-divider">
+                    /
+                </span>
+
+                <span id="totalPage">
+                    7
+                </span>
+
+            </div>
+
+
+            <!-- ================================
+                 第 3 / 4 幕任務條
+
+                 不再使用中央巨大卡片
+            ================================= -->
+
+            <div
+                id="missionPanel"
+                class="mission-panel hidden"
+            >
+
+                <div class="mission-info">
+
+                    <div
+                        id="missionTitle"
+                        class="mission-title"
+                    >
+                        🔍 幫貝貝找找看
+                    </div>
+
+                    <div
+                        id="missionDescription"
+                        class="mission-description"
+                    >
+                        甜甜躲在哪裡呢？
+                    </div>
+
+                </div>
+
+
+                <button
+                    id="missionButton"
+                    class="mission-button"
+                    type="button"
+                >
+                    開始尋找
+                </button>
+
+            </div>
+
+
+            <!-- ================================
+                 找禮物時的進度
+
+                 開始找禮物後才出現
+            ================================= -->
+
+            <div
+                id="giftProgress"
+                class="gift-progress hidden"
+            >
+                🎁 已找到
+                <span id="giftCount">
+                    0
+                </span>
+                / 3
+            </div>
+
+
+            <!-- ================================
+                 下方對話框
+            ================================= -->
+
+            <div
+                id="dialogueBox"
+                class="dialogue-box"
+            >
+
+                <div
+                    id="speaker"
+                    class="speaker"
+                >
+                    貝貝
+                </div>
+
+
+                <p
+                    id="storyText"
+                    class="story-text"
+                >
+                    媽媽，我今天要去森林找小鹿甜甜！
+                </p>
+
+
+                <button
+                    id="voiceButton"
+                    class="voice-button"
+                    onclick="speakStory()"
+                    type="button"
+                    aria-label="播放語音"
+                    title="播放語音"
+                >
+                    🔊
+                </button>
+
+            </div>
+
+
+            <!-- ================================
+                 繼續故事
+            ================================= -->
+
+            <button
+                id="nextButton"
+                class="story-next-button"
+                onclick="nextStory()"
+                type="button"
+            >
+
+                <span>
+                    繼續故事
+                </span>
+
+                <span class="story-arrow">
+                    ›
+                </span>
+
+            </button>
+
+
+        </section>
+
+    </main>
+
+
+    <script src="../app.js"></script>
+
+</body>
+
+</html>

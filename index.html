@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        FocusTale｜童心視界
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+
+<body class="home-body">
+
+
+    <main class="home">
+
+
+        <!--
+            首頁圖片本身已經有：
+
+            FocusTale
+            童心視界
+            開始故事
+            家長觀察報告
+
+            所以这里只建立透明點擊區。
+        -->
+
+
+        <button
+            class="home-hotspot home-story-hotspot"
+            onclick="startStory()"
+            type="button"
+            aria-label="開始故事"
+        ></button>
+
+
+        <button
+            class="home-hotspot home-report-hotspot"
+            onclick="openReport()"
+            type="button"
+            aria-label="家長觀察報告"
+        ></button>
+
+
+    </main>
+
+
+    <script src="app.js"></script>
+
+
+</body>
+
+</html>

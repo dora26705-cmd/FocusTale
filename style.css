@@ -1,0 +1,1931 @@
+/* =========================================================
+   FocusTale - style.css
+========================================================= */
+
+
+/* =========================================================
+   1. 全域
+========================================================= */
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    width: 100%;
+    min-height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family:
+        "Microsoft JhengHei",
+        "Noto Sans TC",
+        Arial,
+        sans-serif;
+}
+
+button {
+    font-family: inherit;
+}
+
+
+/* =========================================================
+   2. 首頁
+   ★ 保留原本整面插畫首頁
+========================================================= */
+
+.home-body {
+    width: 100vw;
+    height: 100vh;
+
+    margin: 0;
+
+    overflow: hidden;
+
+    background: #f7ead6;
+}
+
+
+.home {
+    position: relative;
+
+    width: 100vw;
+    height: 100vh;
+
+    overflow: hidden;
+
+    background-image:
+        url("assets/images/home-bg.png");
+
+    background-size: cover;
+
+    background-position: center;
+
+    background-repeat: no-repeat;
+}
+
+
+/* =========================================================
+   3. 首頁透明按鈕
+========================================================= */
+
+.home-hotspot {
+    position: absolute;
+
+    z-index: 20;
+
+    margin: 0;
+    padding: 0;
+
+    border: none;
+
+    background: transparent;
+
+    cursor: pointer;
+
+    -webkit-tap-highlight-color:
+        transparent;
+}
+
+
+.home-story-hotspot {
+    left: 59.5%;
+    top: 39%;
+
+    width: 31%;
+    height: 19%;
+}
+
+
+.home-report-hotspot {
+    left: 59.5%;
+    top: 61%;
+
+    width: 31%;
+    height: 17%;
+}
+
+
+.home-hotspot:hover {
+    transform: scale(1.02);
+}
+
+
+.home-hotspot:focus-visible {
+    outline:
+        4px solid white;
+
+    border-radius:
+        40px;
+}
+
+
+/* =========================================================
+   4. 故事頁 BODY
+========================================================= */
+
+.story-body {
+    width: 100vw;
+    height: 100vh;
+
+    margin: 0;
+
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            135deg,
+            #fffaf0,
+            #edf9ff
+        );
+}
+
+
+/* =========================================================
+   5. 故事頁外層
+========================================================= */
+
+.story-page {
+    width: 100vw;
+    height: 100vh;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding:
+        1.2vh
+        1.2vw;
+}
+
+
+/* =========================================================
+   6. 故事主畫面
+========================================================= */
+
+.story-scene {
+    position: relative;
+
+    width: 97.6vw;
+    height: 97.6vh;
+
+    max-width: none;
+
+    overflow: hidden;
+
+    border-radius: 30px;
+
+    background: #e9f4df;
+
+    box-shadow:
+        0 15px 45px
+        rgba(74, 54, 35, 0.14);
+}
+
+
+/* =========================================================
+   7. 故事圖片
+========================================================= */
+
+.scene-image {
+    position: absolute;
+
+    inset: 0;
+
+    z-index: 1;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+
+    object-position: center;
+
+    display: block;
+
+    user-select: none;
+
+    -webkit-user-drag: none;
+}
+
+
+/* =========================================================
+   8. 左上按鈕
+========================================================= */
+
+.story-back-button {
+    position: absolute;
+
+    z-index: 50;
+
+    top: 3.5%;
+    left: 2.2%;
+
+    min-width: 145px;
+    height: 60px;
+
+    padding:
+        0
+        24px;
+
+    border:
+        3px solid
+        rgba(255, 255, 255, 0.95);
+
+    border-radius: 999px;
+
+    background:
+        rgba(255, 253, 248, 0.94);
+
+    color: #604737;
+
+    font-size:
+        clamp(
+            16px,
+            1.2vw,
+            20px
+        );
+
+    font-weight: 800;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 7px 20px
+        rgba(67, 45, 26, 0.13);
+
+    backdrop-filter:
+        blur(10px);
+
+    transition:
+        transform 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+
+.story-back-button:hover {
+    transform:
+        translateY(-2px);
+
+    box-shadow:
+        0 10px 25px
+        rgba(67, 45, 26, 0.18);
+}
+
+
+/* =========================================================
+   9. 故事名稱
+========================================================= */
+
+.story-name {
+    position: absolute;
+
+    z-index: 50;
+
+    top: 3.5%;
+    left: 50%;
+
+    transform:
+        translateX(-50%);
+
+    min-height: 60px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding:
+        0
+        34px;
+
+    border:
+        3px solid
+        rgba(255, 255, 255, 0.9);
+
+    border-radius: 999px;
+
+    background:
+        rgba(255, 253, 248, 0.94);
+
+    color: #604737;
+
+    font-size:
+        clamp(
+            17px,
+            1.45vw,
+            24px
+        );
+
+    font-weight: 900;
+
+    white-space: nowrap;
+
+    box-shadow:
+        0 7px 20px
+        rgba(67, 45, 26, 0.12);
+
+    backdrop-filter:
+        blur(10px);
+}
+
+
+/* =========================================================
+   10. 頁碼
+========================================================= */
+
+.story-page-number {
+    position: absolute;
+
+    z-index: 50;
+
+    top: 3.5%;
+    right: 2.2%;
+
+    min-width: 95px;
+    height: 60px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 6px;
+
+    padding:
+        0
+        20px;
+
+    border:
+        3px solid
+        rgba(255, 255, 255, 0.9);
+
+    border-radius: 999px;
+
+    background:
+        rgba(255, 253, 248, 0.94);
+
+    color: #604737;
+
+    font-size:
+        clamp(
+            16px,
+            1.25vw,
+            21px
+        );
+
+    font-weight: 900;
+
+    box-shadow:
+        0 7px 20px
+        rgba(67, 45, 26, 0.12);
+
+    backdrop-filter:
+        blur(10px);
+}
+
+
+/* =========================================================
+   11. 對話框
+========================================================= */
+
+.dialogue-box {
+    position: absolute;
+
+    z-index: 40;
+
+    left: 4%;
+    right: 4%;
+
+    bottom: 3%;
+
+    min-height: 135px;
+
+    padding:
+        45px
+        115px
+        28px
+        38px;
+
+    border:
+        4px solid
+        rgba(255, 255, 255, 0.98);
+
+    border-radius: 32px;
+
+    background:
+        rgba(255, 253, 247, 0.95);
+
+    box-shadow:
+        0 12px 35px
+        rgba(66, 44, 26, 0.16);
+
+    backdrop-filter:
+        blur(10px);
+}
+
+
+/* =========================================================
+   12. 說話者
+========================================================= */
+
+.speaker {
+    position: absolute;
+
+    top: -25px;
+    left: 30px;
+
+    min-width: 110px;
+
+    padding:
+        10px
+        24px;
+
+    border:
+        3px solid white;
+
+    border-radius:
+        999px;
+
+    background:
+        #ffd05b;
+
+    color:
+        #5b422f;
+
+    font-size:
+        clamp(
+            17px,
+            1.3vw,
+            21px
+        );
+
+    font-weight: 900;
+
+    text-align: center;
+
+    box-shadow:
+        0 5px 15px
+        rgba(65, 43, 25, 0.12);
+}
+
+
+/* =========================================================
+   13. 故事文字
+========================================================= */
+
+.story-text {
+    margin: 0;
+
+    color:
+        #574237;
+
+    font-size:
+        clamp(
+            21px,
+            1.75vw,
+            29px
+        );
+
+    font-weight: 700;
+
+    line-height: 1.55;
+}
+
+
+/* =========================================================
+   14. 語音按鈕
+========================================================= */
+
+.voice-button {
+    position: absolute;
+
+    top: 50%;
+    right: 30px;
+
+    transform:
+        translateY(-50%);
+
+    width: 70px;
+    height: 70px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    border: none;
+
+    border-radius: 50%;
+
+    background:
+        #e1f4ff;
+
+    font-size: 28px;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 6px 18px
+        rgba(63, 79, 92, 0.12);
+
+    transition:
+        transform 0.18s ease;
+}
+
+
+.voice-button:hover {
+    transform:
+        translateY(-50%)
+        scale(1.07);
+}
+
+
+/* =========================================================
+   15. 繼續故事
+========================================================= */
+
+.story-next-button {
+    position: absolute;
+
+    z-index: 55;
+
+    right: 5%;
+    bottom: 22%;
+
+    min-width: 210px;
+    height: 66px;
+
+    padding:
+        0
+        28px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 18px;
+
+    border:
+        4px solid white;
+
+    border-radius: 999px;
+
+    background:
+        #ffca58;
+
+    color:
+        #59412e;
+
+    font-size:
+        clamp(
+            16px,
+            1.35vw,
+            21px
+        );
+
+    font-weight: 900;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 7px 18px
+        rgba(86, 58, 29, 0.15);
+
+    transition:
+        transform 0.18s ease;
+}
+
+
+.story-next-button:hover {
+    transform:
+        translateY(-3px);
+}
+
+
+.story-arrow {
+    font-size: 31px;
+
+    line-height: 1;
+}
+
+
+/* =========================================================
+   16. 任務條
+========================================================= */
+
+.mission-panel {
+    position: absolute;
+
+    z-index: 70;
+
+    top: 13%;
+    left: 50%;
+
+    transform:
+        translateX(-50%);
+
+    width:
+        min(
+            650px,
+            58vw
+        );
+
+    min-height: 88px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 25px;
+
+    padding:
+        16px
+        18px
+        16px
+        28px;
+
+    border:
+        3px solid
+        rgba(255, 255, 255, 0.97);
+
+    border-radius: 28px;
+
+    background:
+        rgba(255, 252, 243, 0.95);
+
+    box-shadow:
+        0 10px 30px
+        rgba(62, 44, 27, 0.18);
+
+    backdrop-filter:
+        blur(12px);
+}
+
+
+.mission-info {
+    flex: 1;
+
+    min-width: 0;
+}
+
+
+.mission-title {
+    margin-bottom: 5px;
+
+    color:
+        #594337;
+
+    font-size:
+        clamp(
+            18px,
+            1.45vw,
+            23px
+        );
+
+    font-weight: 900;
+}
+
+
+.mission-description {
+    color:
+        #776155;
+
+    font-size:
+        clamp(
+            14px,
+            1.05vw,
+            17px
+        );
+
+    font-weight: 700;
+
+    line-height: 1.45;
+}
+
+
+/* =========================================================
+   17. 任務按鈕
+========================================================= */
+
+.mission-button {
+    flex-shrink: 0;
+
+    min-width: 150px;
+    height: 56px;
+
+    padding:
+        0
+        24px;
+
+    border: none;
+
+    border-radius: 999px;
+
+    background:
+        #ffcb59;
+
+    color:
+        #57402f;
+
+    font-size:
+        clamp(
+            15px,
+            1.1vw,
+            18px
+        );
+
+    font-weight: 900;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 5px 0
+        rgba(125, 86, 34, 0.15);
+
+    transition:
+        transform 0.18s ease;
+}
+
+
+.mission-button:hover {
+    transform:
+        translateY(-2px);
+}
+
+
+/* =========================================================
+   18. 禮物進度
+========================================================= */
+
+.gift-progress {
+    position: absolute;
+
+    z-index: 65;
+
+    top: 13.5%;
+    left: 50%;
+
+    transform:
+        translateX(-50%);
+
+    padding:
+        13px
+        25px;
+
+    border:
+        3px solid white;
+
+    border-radius:
+        999px;
+
+    background:
+        rgba(255, 250, 232, 0.94);
+
+    color:
+        #604838;
+
+    font-size:
+        clamp(
+            16px,
+            1.25vw,
+            20px
+        );
+
+    font-weight: 900;
+
+    box-shadow:
+        0 8px 25px
+        rgba(70, 48, 28, 0.15);
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   19. 甜甜點擊區
+========================================================= */
+
+.deer-target {
+    position: absolute;
+
+    z-index: 35;
+
+    border: none;
+
+    padding: 0;
+
+    background:
+        transparent;
+
+    cursor: pointer;
+
+    outline: none;
+
+    -webkit-tap-highlight-color:
+        transparent;
+}
+
+
+/* =========================================================
+   20. 禮物點擊區
+========================================================= */
+
+.gift-target {
+    position: absolute;
+
+    z-index: 35;
+
+    border: none;
+
+    padding: 0;
+
+    background:
+        transparent;
+
+    cursor: pointer;
+
+    outline: none;
+
+    -webkit-tap-highlight-color:
+        transparent;
+}
+
+
+/* =========================================================
+   21. 隱藏
+========================================================= */
+
+.hidden {
+    display: none !important;
+}
+
+
+/* =========================================================
+   22. 第五幕蝴蝶
+
+   ★ 注意：
+   這個選擇器比 .scene-image 更明確，
+   所以蝴蝶不會被變成滿版背景。
+========================================================= */
+
+#storyScene #flyingButterfly {
+    position: absolute;
+
+    z-index: 38;
+
+    /*
+       蝴蝶比對話框低，
+       但在背景圖上面
+    */
+
+    width:
+        clamp(
+            90px,
+            9vw,
+            150px
+        );
+
+    height: auto;
+
+    max-width: none;
+
+    /*
+       一開始藏在右邊外面
+    */
+
+    left: 105%;
+    top: 20%;
+
+    inset: auto;
+
+    object-fit: contain;
+
+    opacity: 0;
+
+    pointer-events: none;
+
+    user-select: none;
+
+    -webkit-user-drag: none;
+
+    border-radius: 0;
+}
+
+
+/* =========================================================
+   23. 蝴蝶開始飛
+========================================================= */
+
+#storyScene
+#flyingButterfly.butterfly-fly {
+
+    animation:
+        butterflyAcrossScene
+        6.5s
+        ease-in-out
+        forwards;
+
+}
+
+
+/* =========================================================
+   24. 蝴蝶飛行路線
+========================================================= */
+
+@keyframes butterflyAcrossScene {
+
+    0% {
+        left: 105%;
+        top: 20%;
+
+        opacity: 0;
+
+        transform:
+            translateY(0)
+            rotate(-7deg)
+            scale(0.85);
+    }
+
+
+    6% {
+        opacity: 1;
+    }
+
+
+    18% {
+        left: 84%;
+        top: 17%;
+
+        opacity: 1;
+
+        transform:
+            translateY(-10px)
+            rotate(-4deg)
+            scale(0.92);
+    }
+
+
+    35% {
+        left: 67%;
+        top: 24%;
+
+        transform:
+            translateY(10px)
+            rotate(4deg)
+            scale(1);
+    }
+
+
+    52% {
+        left: 50%;
+        top: 18%;
+
+        transform:
+            translateY(-12px)
+            rotate(-4deg)
+            scale(1);
+    }
+
+
+    68% {
+        left: 33%;
+        top: 25%;
+
+        transform:
+            translateY(10px)
+            rotate(4deg)
+            scale(0.96);
+    }
+
+
+    84% {
+        left: 14%;
+        top: 19%;
+
+        opacity: 1;
+
+        transform:
+            translateY(-9px)
+            rotate(-5deg)
+            scale(0.9);
+    }
+
+
+    95% {
+        opacity: 1;
+    }
+
+
+    100% {
+        left: -15%;
+        top: 24%;
+
+        opacity: 0;
+
+        transform:
+            translateY(5px)
+            rotate(-7deg)
+            scale(0.84);
+    }
+}
+
+
+/* =========================================================
+   25. 平板
+========================================================= */
+
+@media (
+    max-width: 1000px
+) {
+
+    .story-page {
+        padding:
+            0.8vh
+            0.8vw;
+    }
+
+
+    .story-scene {
+        width: 98.4vw;
+        height: 98.4vh;
+
+        border-radius: 22px;
+    }
+
+
+    .story-back-button {
+        min-width: 120px;
+        height: 54px;
+    }
+
+
+    .story-name {
+        min-height: 54px;
+
+        padding:
+            0
+            24px;
+    }
+
+
+    .story-page-number {
+        height: 54px;
+    }
+
+
+    .dialogue-box {
+        left: 3%;
+        right: 3%;
+
+        min-height: 125px;
+
+        padding:
+            40px
+            95px
+            22px
+            28px;
+    }
+
+
+    .voice-button {
+        width: 60px;
+        height: 60px;
+
+        right: 22px;
+    }
+
+
+    .story-next-button {
+        bottom: 21%;
+
+        min-width: 180px;
+        height: 58px;
+    }
+
+
+    .mission-panel {
+        width: 70vw;
+    }
+
+
+    #storyScene #flyingButterfly {
+        width:
+            clamp(
+                75px,
+                11vw,
+                125px
+            );
+    }
+}
+
+
+/* =========================================================
+   26. 手機
+========================================================= */
+
+@media (
+    max-width: 650px
+) {
+
+    .story-page {
+        padding: 0;
+    }
+
+
+    .story-scene {
+        width: 100vw;
+        height: 100vh;
+
+        border-radius: 0;
+    }
+
+
+    .story-name {
+        display: none;
+    }
+
+
+    .story-back-button {
+        top: 2%;
+        left: 3%;
+
+        min-width: 105px;
+        height: 48px;
+
+        padding:
+            0
+            14px;
+    }
+
+
+    .story-page-number {
+        top: 2%;
+        right: 3%;
+
+        min-width: 75px;
+        height: 48px;
+
+        padding:
+            0
+            13px;
+    }
+
+
+    .mission-panel {
+        top: 10%;
+
+        width: 92vw;
+
+        min-height: 80px;
+
+        padding:
+            12px
+            12px
+            12px
+            18px;
+
+        gap: 12px;
+    }
+
+
+    .mission-button {
+        min-width: 120px;
+        height: 50px;
+
+        padding:
+            0
+            15px;
+    }
+
+
+    .dialogue-box {
+        left: 2.5%;
+        right: 2.5%;
+
+        bottom: 2%;
+
+        min-height: 125px;
+
+        padding:
+            35px
+            75px
+            18px
+            20px;
+    }
+
+
+    .speaker {
+        top: -20px;
+        left: 18px;
+
+        min-width: 90px;
+
+        padding:
+            8px
+            16px;
+    }
+
+
+    .story-text {
+        font-size:
+            clamp(
+                17px,
+                4.5vw,
+                21px
+            );
+    }
+
+
+    .voice-button {
+        right: 15px;
+
+        width: 54px;
+        height: 54px;
+
+        font-size: 23px;
+    }
+
+
+    .story-next-button {
+        right: 4%;
+        bottom: 20%;
+
+        min-width: 155px;
+        height: 52px;
+
+        padding:
+            0
+            18px;
+
+        gap: 10px;
+    }
+
+
+    .story-arrow {
+        font-size: 25px;
+    }
+
+
+    .gift-progress {
+        top: 10%;
+
+        padding:
+            10px
+            18px;
+    }
+
+
+    #storyScene #flyingButterfly {
+        width: 80px;
+    }
+}
+
+/* =========================================================
+   第六幕：甜甜的小問題
+========================================================= */
+
+.scene6-question {
+
+    position: absolute;
+
+    z-index: 65;
+
+    top: 14%;
+    left: 50%;
+
+    transform:
+        translateX(-50%);
+
+    width:
+        min(
+            720px,
+            70vw
+        );
+
+    padding:
+        20px 24px 24px;
+
+    border:
+        4px solid
+        rgba(255, 255, 255, 0.98);
+
+    border-radius:
+        30px;
+
+    background:
+        rgba(255, 253, 245, 0.96);
+
+    box-shadow:
+        0 12px 35px
+        rgba(70, 48, 28, 0.18);
+
+    backdrop-filter:
+        blur(12px);
+
+    animation:
+        scene6QuestionAppear
+        0.35s
+        ease
+        forwards;
+}
+
+
+/* 標題 */
+
+.scene6-question-title {
+
+    margin-bottom:
+        16px;
+
+    color:
+        #604737;
+
+    font-size:
+        clamp(
+            17px,
+            1.35vw,
+            22px
+        );
+
+    font-weight: 900;
+
+    text-align: center;
+}
+
+
+/* 三個選項 */
+
+.scene6-options {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 16px;
+}
+
+
+/* 單一選項 */
+
+.scene6-option {
+
+    min-height:
+        105px;
+
+    display: flex;
+
+    flex-direction:
+        column;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    gap: 7px;
+
+    padding:
+        12px;
+
+    border:
+        3px solid
+        #f1dfbf;
+
+    border-radius:
+        24px;
+
+    background:
+        #fffaf0;
+
+    color:
+        #594337;
+
+    cursor:
+        pointer;
+
+    box-shadow:
+        0 6px 15px
+        rgba(70, 48, 28, 0.10);
+
+    transition:
+        transform 0.18s ease,
+        box-shadow 0.18s ease,
+        background 0.18s ease,
+        border-color 0.18s ease;
+}
+
+
+/* 滑鼠移上去 */
+
+.scene6-option:hover:not(:disabled) {
+
+    transform:
+        translateY(-4px)
+        scale(1.02);
+
+    box-shadow:
+        0 10px 22px
+        rgba(70, 48, 28, 0.16);
+}
+
+
+/* Emoji */
+
+.scene6-option-emoji {
+
+    font-size:
+        clamp(
+            34px,
+            3vw,
+            48px
+        );
+
+    line-height:
+        1;
+}
+
+
+/* 選項文字 */
+
+.scene6-option-text {
+
+    font-size:
+        clamp(
+            16px,
+            1.25vw,
+            20px
+        );
+
+    font-weight:
+        900;
+}
+
+
+/* 玩家選擇 */
+
+.scene6-option.selected {
+
+    border-color:
+        #ffca58;
+
+    background:
+        #fff1bd;
+}
+
+
+/* 正確答案 */
+
+.scene6-option.correct {
+
+    border-color:
+        #8bcf8a;
+
+    background:
+        #eaf8e7;
+}
+
+
+/* 作答完成 */
+
+.scene6-option:disabled {
+
+    cursor:
+        default;
+
+    opacity:
+        0.9;
+}
+
+
+/* =========================================================
+   選項出現動畫
+========================================================= */
+
+@keyframes scene6QuestionAppear {
+
+    from {
+
+        opacity:
+            0;
+
+        transform:
+            translateX(-50%)
+            translateY(-12px)
+            scale(0.96);
+
+    }
+
+
+    to {
+
+        opacity:
+            1;
+
+        transform:
+            translateX(-50%)
+            translateY(0)
+            scale(1);
+
+    }
+
+}
+
+
+/* =========================================================
+   手機
+========================================================= */
+
+@media (
+    max-width: 650px
+) {
+
+    .scene6-question {
+
+        top:
+            10%;
+
+        width:
+            92vw;
+
+        padding:
+            14px;
+
+    }
+
+
+    .scene6-options {
+
+        gap:
+            8px;
+
+    }
+
+
+    .scene6-option {
+
+        min-height:
+            88px;
+
+        padding:
+            8px;
+
+        border-radius:
+            18px;
+
+    }
+
+
+    .scene6-option-emoji {
+
+        font-size:
+            32px;
+
+    }
+
+
+}
+
+/* =========================================================
+   第七幕：完成訊息
+========================================================= */
+
+.scene7-complete-message {
+    position: absolute;
+
+    z-index: 70;
+
+    top: 18%;
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    padding: 20px 42px;
+
+    border:
+        4px solid
+        rgba(255, 255, 255, 0.95);
+
+    border-radius: 30px;
+
+    background:
+        rgba(255, 250, 235, 0.95);
+
+    color: #604737;
+
+    font-size:
+        clamp(24px, 2.2vw, 38px);
+
+    font-weight: 900;
+
+    white-space: nowrap;
+
+    box-shadow:
+        0 12px 35px
+        rgba(70, 48, 28, 0.20);
+
+    backdrop-filter: blur(10px);
+
+    animation:
+        scene7MessageAppear
+        0.55s ease forwards;
+}
+
+
+/* =========================================================
+   第七幕：完成故事按鈕
+========================================================= */
+
+.scene7-finish-button {
+    position: absolute;
+
+    z-index: 71;
+
+    top: 31%;
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    min-width: 220px;
+
+    padding: 17px 32px;
+
+    border:
+        4px solid
+        rgba(255, 255, 255, 0.95);
+
+    border-radius: 999px;
+
+    background: #ffca58;
+
+    color: #594337;
+
+    font-size:
+        clamp(18px, 1.4vw, 23px);
+
+    font-weight: 900;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 8px 20px
+        rgba(70, 48, 28, 0.20);
+
+    animation:
+        scene7ButtonAppear
+        0.45s ease forwards;
+
+    transition:
+        transform 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+
+.scene7-finish-button:hover {
+    transform:
+        translateX(-50%)
+        translateY(-3px)
+        scale(1.03);
+
+    box-shadow:
+        0 12px 26px
+        rgba(70, 48, 28, 0.25);
+}
+
+
+/* =========================================================
+   第七幕動畫
+========================================================= */
+
+@keyframes scene7MessageAppear {
+
+    from {
+        opacity: 0;
+
+        transform:
+            translateX(-50%)
+            translateY(-15px)
+            scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+
+        transform:
+            translateX(-50%)
+            translateY(0)
+            scale(1);
+    }
+}
+
+
+@keyframes scene7ButtonAppear {
+
+    from {
+        opacity: 0;
+
+        transform:
+            translateX(-50%)
+            translateY(12px)
+            scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+
+        transform:
+            translateX(-50%)
+            translateY(0)
+            scale(1);
+    }
+}
+
+
+/* =========================================================
+   手機版
+========================================================= */
+
+@media (max-width: 650px) {
+
+    .scene6-question {
+        top: 10%;
+
+        width: 92vw;
+
+        padding: 14px;
+    }
+
+
+    .scene6-options {
+        gap: 8px;
+    }
+
+
+    .scene6-option {
+        min-height: 88px;
+
+        padding: 8px;
+
+        border-radius: 18px;
+    }
+
+
+    .scene6-option-emoji {
+        font-size: 32px;
+    }
+
+
+    .scene7-complete-message {
+        top: 14%;
+
+        max-width: 90vw;
+
+        padding: 16px 20px;
+
+        white-space: normal;
+
+        text-align: center;
+    }
+
+
+    .scene7-finish-button {
+        top: 30%;
+
+        min-width: 190px;
+    }
+
+}
+
+/* =========================================================
+   第三、第四幕：尋找遊戲霧化轉場
+========================================================= */
+
+/* 霧 */
+.search-fog {
+    position: absolute;
+    inset: 0;
+
+    z-index: 80;
+
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(255, 255, 255, 0.72),
+            rgba(245, 248, 250, 0.90)
+        );
+
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    opacity: 0;
+    pointer-events: none;
+
+    transition: opacity 0.7s ease;
+}
+
+
+/* 霧出現 */
+.search-fog.show {
+    opacity: 1;
+}
+
+
+/* 開始尋找按鈕 */
+
+
+.search-start-button {
+    position: absolute !important;
+
+    left: 50% !important;
+    top: 45% !important;
+
+    transform: translate(-50%, -50%) !important;
+
+    z-index: 999999 !important;
+
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+
+    width: auto !important;
+    height: auto !important;
+
+    padding: 22px 50px !important;
+
+    border: 4px solid #ffffff !important;
+    border-radius: 999px !important;
+
+    background: #ffc94d !important;
+
+    color: #5b432f !important;
+
+    font-size: 30px !important;
+    font-weight: 900 !important;
+
+    line-height: 1.2 !important;
+
+    cursor: pointer !important;
+
+    pointer-events: auto !important;
+
+    box-shadow:
+        0 8px 25px rgba(0, 0, 0, 0.25) !important;
+}
+
+
+/* 有沒有 show 都保持顯示 */
+.search-start-button.show {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+
+    transform:
+        translate(-50%, -50%) !important;
+}
+
+
+/* 搜尋時隱藏故事字幕 */
+.search-mode .dialogue-box {
+    opacity: 0;
+    pointer-events: none;
+}
+
+
+/* 如果你的字幕 class 是 story-dialogue，也一起處理 */
+.search-mode .story-dialogue {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* =========================================================
+   搜尋霧
+========================================================= */
+
+.search-fog {
+    position: absolute;
+    inset: 0;
+    z-index: 80;
+    pointer-events: none;
+    opacity: 0;
+
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+
+    background: rgba(255, 255, 255, 0.35);
+
+    transition: opacity 0.7s ease;
+}
+
+.search-fog.show {
+    opacity: 1;
+}
