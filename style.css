@@ -4220,23 +4220,22 @@ button {
 /* 專注比例 */
 .long-term-section.history-focus {
     background-image:
-        url("./assets/images/report-history-focus.png") !important;
+        url("/FocusTale/assets/images/report-history-focus.png") !important;
 }
 
 
 /* 分心次數 */
 .long-term-section.history-distraction {
     background-image:
-        url("./assets/images/report-history-distraction.png") !important;
+        url("/FocusTale/assets/images/report-history-distraction.png") !important;
 }
 
 
 /* 重新投入 */
 .long-term-section.history-reengagement {
     background-image:
-        url("./assets/images/report-history-reengagement.png") !important;
+        url("/FocusTale/assets/images/report-history-reengagement.png") !important;
 }
-
 
 /* 三個按鈕的外層 */
 .history-chart-tabs {
