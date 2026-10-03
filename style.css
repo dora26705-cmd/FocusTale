@@ -864,8 +864,8 @@ button {
    21. 隱藏
 ========================================================= */
 
-.hidden {
-    display: none !important;
+#attentionDebug {
+    display: block !important;
 }
 
 
@@ -2476,68 +2476,6 @@ button {
 
 
 /* =========================================================
-   長期閱讀趨勢
-========================================================= */
-
-.long-term-section {
-    position: relative;
-
-    width: 100%;
-    aspect-ratio: 1920 / 820;
-
-    background-image:
-        url("./assets/images/report-history-focus.png");
-
-    background-size: 100% 100%;
-    background-position: center;
-    background-repeat: no-repeat;
-
-    overflow: hidden;
-}
-
-
-/* =========================================================
-   三個切換按鈕
-   按鈕本身透明，只保留點擊功能
-========================================================= */
-
-.history-chart-tabs {
-    position: absolute;
-
-    left: 3%;
-    top: 28%;
-
-    width: 54%;
-    height: 12%;
-
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-
-    z-index: 5;
-}
-
-
-.history-tab {
-    width: 100%;
-    height: 100%;
-
-    border: none;
-    background: transparent;
-
-    color: transparent;
-
-    cursor: pointer;
-}
-
-
-/* 不需要程式產生的標題 */
-
-#historyChartTitle {
-    display: none !important;
-}
-
-
-/* =========================================================
    Chart.js 圖表位置
 ========================================================= */
 
@@ -3459,105 +3397,78 @@ button {
 
 /* =========================================================
    ④ 長期閱讀趨勢
-
-   使用：
-   report-history.png
 ========================================================= */
 
 .long-term-section {
-    position:
-        relative;
+    position: relative;
 
+    width: 100%;
 
-    width:
-        100%;
+    aspect-ratio: 1920 / 820;
 
+    margin: 0;
+    padding: 0;
 
-    aspect-ratio:
-        1920 / 820;
+    background-size: 100% 100% !important;
+    background-repeat: no-repeat !important;
+    background-position: center top !important;
 
-
-    margin:
-        0;
-
-
-    padding:
-        0;
-
-
-    background-image:
-        url("assets/images/report-history.png");
-
-
-    background-repeat:
-        no-repeat;
-
-
-    background-position:
-        center;
-
-
-    background-size:
-        100% 100%;
+    overflow: hidden;
 }
 
+
+/* =========================================================
+   三種長期趨勢背景
+========================================================= */
+
+/* 專注比例 */
+.long-term-section.history-focus {
+    background-image:
+        url("/FocusTale/assets/images/report-history-focus.png") !important;
+}
+
+
+/* 分心次數 */
+.long-term-section.history-distraction {
+    background-image:
+        url("/FocusTale/assets/images/report-history-distraction.png") !important;
+}
+
+
+/* 重新投入 */
+.long-term-section.history-reengagement {
+    background-image:
+        url("/FocusTale/assets/images/report-history-reengagement.png") !important;
+}
 
 
 /* =========================================================
    長期趨勢三個切換按鈕
-
-   圖片已經畫好：
-   專注比例
-   分心次數
-   重新投入
-
-   所以真正按鈕透明覆蓋
 ========================================================= */
 
 .history-chart-tabs {
-    position:
-        absolute;
+    position: absolute;
 
+    top: 27%;
+    left: 3%;
 
-    top:
-        27%;
+    width: 54%;
+    height: 11%;
 
-
-    left:
-        3%;
-
-
-    width:
-        54%;
-
-
-    height:
-        11%;
-
-
-    display:
-        grid;
-
+    display: grid;
 
     grid-template-columns:
-        repeat(
-            3,
-            1fr
-        );
+        repeat(3, 1fr);
 
+    gap: 1%;
 
-    gap:
-        1%;
+    margin: 0;
 
+    z-index: 20;
 
-    margin:
-        0;
-
-
-    z-index:
-        20;
+    background: transparent !important;
+    background-image: none !important;
 }
-
 
 
 /* =========================================================
@@ -3565,50 +3476,26 @@ button {
 ========================================================= */
 
 .history-tab {
-    width:
-        100%;
+    width: 100%;
+    height: 100%;
 
+    margin: 0;
+    padding: 0;
 
-    height:
-        100%;
+    border: none !important;
+    border-radius: 999px;
 
+    background: transparent !important;
+    background-image: none !important;
 
-    margin:
-        0;
+    box-shadow: none !important;
 
+    color: transparent !important;
 
-    padding:
-        0;
+    font-size: 0;
 
-
-    border:
-        none !important;
-
-
-    border-radius:
-        999px;
-
-
-    background:
-        transparent !important;
-
-
-    box-shadow:
-        none !important;
-
-
-    color:
-        transparent !important;
-
-
-    font-size:
-        0;
-
-
-    cursor:
-        pointer;
+    cursor: pointer;
 }
-
 
 
 /* 滑鼠移入 */
@@ -3624,7 +3511,6 @@ button {
 }
 
 
-
 /* active */
 
 .history-tab.active {
@@ -3638,94 +3524,27 @@ button {
 }
 
 
-
-/* =========================================================
-   長期趨勢動態標題
-========================================================= */
-
-#historyChartTitle {
-    position:
-        absolute;
-
-
-    left:
-        6%;
-
-
-    top:
-        42%;
-
-
-    margin:
-        0;
-
-
-    color:
-        #513528;
-
-
-    font-size:
-        clamp(
-            20px,
-            2vw,
-            38px
-        );
-
-
-    font-weight:
-        800;
-
-
-    z-index:
-        5;
-}
-
-
-
 /* =========================================================
    長期趨勢圖
 ========================================================= */
 
 .long-term-chart-container {
-    position:
-        absolute;
+    position: absolute;
 
+    left: 6%;
+    right: 5%;
 
-    left:
-        6%;
+    top: 50%;
+    bottom: 5%;
 
+    width: auto;
+    height: auto;
 
-    right:
-        5%;
+    padding: 15px 22px;
 
+    box-sizing: border-box;
 
-    top:
-        50%;
-
-
-    bottom:
-        5%;
-
-
-    width:
-        auto;
-
-
-    height:
-        auto;
-
-
-    padding:
-        15px 22px;
-
-
-    box-sizing:
-        border-box;
-
-
-    border-radius:
-        30px;
-
+    border-radius: 30px;
 
     background:
         rgba(
@@ -3737,17 +3556,12 @@ button {
 }
 
 
-
 /* Chart.js */
 
 .long-term-chart-container canvas {
-    width:
-        100% !important;
-
-    height:
-        100% !important;
+    width: 100% !important;
+    height: 100% !important;
 }
-
 
 
 /* =========================================================
@@ -4165,91 +3979,3 @@ button {
     background-image: none !important;
 }
 
-/* =========================================================
-   長期閱讀趨勢－恢復背景圖片
-========================================================= */
-
-.long-term-section {
-    position: relative !important;
-
-    width: 100% !important;
-
-    background-image:
-        url("../assets/images/report-history-focus.png") !important;
-
-    background-size: 100% 100% !important;
-    background-position: center top !important;
-    background-repeat: no-repeat !important;
-}
-
-
-/* 三個切換區域本身不能有背景 */
-.history-chart-tabs {
-    background: transparent !important;
-    background-image: none !important;
-}
-
-
-/* 三個按鈕只負責點擊 */
-.history-tab {
-    background: transparent !important;
-    background-image: none !important;
-
-    border: none !important;
-    box-shadow: none !important;
-
-    color: transparent !important;
-
-    cursor: pointer;
-}
-
-/* =========================================================
-   長期閱讀趨勢背景
-========================================================= */
-
-.long-term-section {
-    position: relative !important;
-    width: 100% !important;
-
-    background-size: 100% 100% !important;
-    background-position: center top !important;
-    background-repeat: no-repeat !important;
-}
-
-
-/* 專注比例 */
-.long-term-section.history-focus {
-    background-image:
-        url("/FocusTale/assets/images/report-history-focus.png") !important;
-}
-
-
-/* 分心次數 */
-.long-term-section.history-distraction {
-    background-image:
-        url("/FocusTale/assets/images/report-history-distraction.png") !important;
-}
-
-
-/* 重新投入 */
-.long-term-section.history-reengagement {
-    background-image:
-        url("/FocusTale/assets/images/report-history-reengagement.png") !important;
-}
-
-/* 三個按鈕的外層 */
-.history-chart-tabs {
-    background: transparent !important;
-}
-
-
-/* 三個透明點擊按鈕 */
-.history-tab {
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-
-    color: transparent !important;
-
-    cursor: pointer;
-}
