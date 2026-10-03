@@ -4010,3 +4010,9 @@ button {
     background-image: none !important;
 }
 
+/* ================================
+   通用隱藏
+================================ */
+.hidden {
+    display: none !important;
+}
