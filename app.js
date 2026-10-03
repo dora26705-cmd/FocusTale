@@ -1,46 +1,22 @@
 
 
+console.log(
+    "【測試】app.js 已載入"
+);
+function updateAttentionDebugPanel(
+    faceDetected,
+    horizontal = null,
+    vertical = null
+) {
 
+    console.log(
+        "【測試】updateAttentionDebugPanel 有成功執行",
+        faceDetected,
+        horizontal,
+        vertical
+    );
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+}
 /* =========================================================
    FocusTale - app.js
    小兔貝貝的森林尋友記
@@ -736,27 +712,71 @@ function prepareDeerMission() {
 
 function showDeerStartButton() {
 
+    console.log(
+        "【甜甜測試 1】showDeerStartButton 被呼叫",
+        {
+            currentStoryPage:
+                currentStoryPage,
+
+            deerSearchActive:
+                deerSearchActive,
+
+            deerFound:
+                deerFound
+        }
+    );
+
+
     if (currentStoryPage !== 3) {
+
+        console.log(
+            "【甜甜測試失敗】目前不是第三幕"
+        );
+
         return;
+
     }
 
 
     if (deerSearchActive) {
+
+        console.log(
+            "【甜甜測試失敗】deerSearchActive 已經是 true"
+        );
+
         return;
+
     }
 
 
     if (deerFound) {
+
+        console.log(
+            "【甜甜測試失敗】deerFound 已經是 true"
+        );
+
         return;
+
     }
 
-
-    /* 搜尋開始前不能讓使用者直接跳下一幕 */
 
     hideNextButton();
 
 
+    console.log(
+        "【甜甜測試 2】準備建立開始尋找按鈕"
+    );
+
+
     showSearchStartButton(3);
+
+
+    console.log(
+        "【甜甜測試 3】建立後按鈕數量：",
+        document.querySelectorAll(
+            ".search-start-button"
+        ).length
+    );
 
 }
 
@@ -3204,7 +3224,6 @@ function speakStory() {
 /* =========================================================
    47. 語音
 ========================================================= */
-
 function speakText(
     text,
     onEnd = null
@@ -3212,6 +3231,11 @@ function speakText(
 
     stopSpeech();
 
+
+    /*
+        瀏覽器不支援語音
+        → 直接執行後續流程
+    */
 
     if (
         !(
@@ -3221,13 +3245,10 @@ function speakText(
     ) {
 
         if (onEnd) {
-
             onEnd();
-
         }
 
         return;
-
     }
 
 
@@ -3283,18 +3304,65 @@ function speakText(
 
 
     /*
-        只有語音播放結束，
-        才執行 onEnd。
+        防止 onEnd 被執行兩次
+    */
+
+    let finished =
+        false;
+
+
+    function finishSpeech() {
+
+        if (finished) {
+            return;
+        }
+
+
+        finished =
+            true;
+
+
+        console.log(
+            "FocusTale：語音播放完成"
+        );
+
+
+        if (onEnd) {
+
+            onEnd();
+
+        }
+
+    }
+
+
+    /*
+        正常播放完成
     */
 
     utterance.onend =
         function () {
 
-            if (onEnd) {
+            finishSpeech();
 
-                onEnd();
+        };
 
-            }
+
+    /*
+        如果語音發生錯誤，
+        也不要讓故事卡住。
+    */
+
+    utterance.onerror =
+        function (event) {
+
+            console.log(
+                "FocusTale：語音播放發生錯誤",
+                event
+            );
+
+
+            finishSpeech();
 
         };
 
@@ -3817,20 +3885,57 @@ function showSearchStartButton(
         避免被其他 CSS 影響。
     */
 
-    button.style.position =
-        "absolute";
+/*
+    強制顯示在故事畫面正中央
+*/
 
+button.style.setProperty(
+    "display",
+    "block",
+    "important"
+);
 
-    button.style.left =
-        "50%";
+button.style.setProperty(
+    "visibility",
+    "visible",
+    "important"
+);
 
+button.style.setProperty(
+    "opacity",
+    "1",
+    "important"
+);
 
-    button.style.top =
-        "45%";
+button.style.setProperty(
+    "position",
+    "absolute",
+    "important"
+);
 
+button.style.setProperty(
+    "left",
+    "50%",
+    "important"
+);
 
-    button.style.transform =
-        "translate(-50%, -50%)";
+button.style.setProperty(
+    "top",
+    "45%",
+    "important"
+);
+
+button.style.setProperty(
+    "transform",
+    "translate(-50%, -50%)",
+    "important"
+);
+
+button.style.setProperty(
+    "z-index",
+    "99999",
+    "important"
+);
 
 
     /*
@@ -3956,30 +4061,33 @@ function showSearchStartButton(
 
 }
 
-
 /* =========================================================
-   59. 專注行為分析：啟動攝影機
+   59. 專注行為分析：眼睛視線偵測
 ========================================================= */
+
+
+/* ---------------------------------------------------------
+   攝影機
+--------------------------------------------------------- */
 
 let attentionCameraStream = null;
 
-/* =========================================================
-   59-1. 眼睛視線偵測資料
-========================================================= */
 
-/* MediaPipe Face Landmarker */
+/* ---------------------------------------------------------
+   MediaPipe Face Landmarker
+--------------------------------------------------------- */
+
 let attentionFaceLandmarker = null;
 
-
-/* 是否已經載入完成 */
 let attentionFaceLandmarkerReady = false;
 
 
-/* 動畫循環 */
+/* ---------------------------------------------------------
+   偵測動畫
+--------------------------------------------------------- */
+
 let attentionDetectionFrame = null;
 
-
-/* 避免同一個 video frame 重複分析 */
 let attentionLastVideoTime = -1;
 
 
@@ -3993,7 +4101,7 @@ let attentionIsLookingAtScreen = false;
 
 
 /* ---------------------------------------------------------
-   時間統計
+   專注時間
 --------------------------------------------------------- */
 
 let attentionSessionStartTime = null;
@@ -4014,6 +4122,30 @@ let attentionDistractionStartTime = null;
 let attentionCurrentDistractionTime = 0;
 
 
+/*
+    分心防抖：
+
+    視線連續離開 150ms
+    才正式算一次分心。
+*/
+
+let attentionLeaveCandidateTime = null;
+
+const ATTENTION_LEAVE_CONFIRM_TIME = 150;
+
+
+/*
+    回到畫面防抖：
+
+    視線連續回到中央 150ms
+    才正式算重新投入。
+*/
+
+let attentionReturnCandidateTime = null;
+
+const ATTENTION_RETURN_CONFIRM_TIME = 150;
+
+
 /* ---------------------------------------------------------
    重新投入
 --------------------------------------------------------- */
@@ -4023,11 +4155,16 @@ let attentionLastReengagementTime = null;
 let attentionReengagementTimes = [];
 
 
-
 /* ---------------------------------------------------------
-   視線中央容許範圍
+   眼睛視線中央範圍
 
-   後面測試時可以再調整。
+   X：
+   0.32 ～ 0.68 = 中央
+
+   Y：
+   0.30 ～ 0.70 = 中央
+
+   超出範圍就判定視線離開畫面
 --------------------------------------------------------- */
 
 const GAZE_HORIZONTAL_MIN = 0.32;
@@ -4038,6 +4175,9 @@ const GAZE_VERTICAL_MIN = 0.30;
 
 const GAZE_VERTICAL_MAX = 0.70;
 
+/* =========================================================
+   59-1. 啟動攝影機
+========================================================= */
 
 async function startAttentionCamera() {
 
@@ -4047,101 +4187,185 @@ async function startAttentionCamera() {
         );
 
 
-    /*
-        如果這個頁面沒有攝影機元素，
-        就不執行。
-    */
-
+    /* 找不到攝影機元素 */
     if (!camera) {
 
-        return;
+        console.error(
+            "FocusTale：找不到 attentionCamera"
+        );
 
+        return;
     }
 
 
-    /*
-        確認瀏覽器支援攝影機功能。
-    */
-
+    /* 瀏覽器不支援攝影機 */
     if (
         !navigator.mediaDevices ||
         !navigator.mediaDevices.getUserMedia
     ) {
 
-        console.log(
-            "這個瀏覽器不支援攝影機功能"
+        console.error(
+            "FocusTale：瀏覽器不支援攝影機"
         );
 
         return;
-
     }
 
 
     try {
 
-        /*
-            向使用者要求攝影機權限。
-        */
+        /* -------------------------------------------------
+           如果已經有攝影機串流
+           就直接使用，不重複開啟
+        ------------------------------------------------- */
 
-        const stream =
-            await navigator.mediaDevices
-                .getUserMedia({
+        if (
+            camera.srcObject &&
+            camera.srcObject.getVideoTracks &&
+            camera.srcObject
+                .getVideoTracks()
+                .some(
+                    function (track) {
 
-                    video: {
+                        return (
+                            track.readyState ===
+                            "live"
+                        );
 
-                        facingMode:
-                            "user"
+                    }
+                )
+        ) {
 
-                    },
+            attentionCameraStream =
+                camera.srcObject;
 
-                    audio: false
-
-                });
-
-
-        /*
-            保存攝影機串流。
-        */
-
-        attentionCameraStream =
-            stream;
-
-
-        /*
-            把攝影機畫面交給
-            attentionCamera。
-        */
-
-        camera.srcObject =
-            stream;
+        }
 
 
-        /*
-            等攝影機開始播放。
-        */
+        /* -------------------------------------------------
+           還沒有攝影機串流
+           → 開啟前鏡頭
+        ------------------------------------------------- */
+
+        else {
+
+            attentionCameraStream =
+                await navigator.mediaDevices
+                    .getUserMedia({
+
+                        video: {
+
+                            facingMode:
+                                "user"
+
+                        },
+
+                        audio:
+                            false
+
+                    });
+
+
+            camera.srcObject =
+                attentionCameraStream;
+
+        }
+
+
+        /* -------------------------------------------------
+           Video 設定
+        ------------------------------------------------- */
+
+        camera.muted =
+            true;
+
+        camera.playsInline =
+            true;
+
 
         await camera.play();
 
-console.log(
-    "FocusTale：攝影機啟動成功"
+
+        console.log(
+            "FocusTale：攝影機啟動成功"
+        );
+
+
+        /* -------------------------------------------------
+           攝影機成功後
+           → 載入眼睛偵測模型
+        ------------------------------------------------- */
+
+        await initializeEyeTracking();
+
+
+        /* 模型載入失敗就停止 */
+        if (
+            !attentionFaceLandmarkerReady
+        ) {
+
+            return;
+
+        }
+
+
+        /* -------------------------------------------------
+           開始眼睛視線偵測
+        ------------------------------------------------- */
+
+        startEyeTracking();
+
+    }
+
+
+    catch (error) {
+
+        console.error(
+            "FocusTale：攝影機啟動失敗",
+            error
+        );
+
+    }
+
+}
+
+
+
+/* =========================================================
+   59-1-1. 進入故事頁後啟動攝影機與眼睛偵測
+========================================================= */
+
+window.addEventListener(
+    "load",
+    async function () {
+
+        const camera =
+            document.getElementById(
+                "attentionCamera"
+            );
+
+
+        /*
+            不是故事頁
+            → 不啟動攝影機
+        */
+
+        if (!camera) {
+
+            return;
+
+        }
+
+
+        console.log(
+            "FocusTale：故事頁載入完成，準備啟動攝影機"
+        );
+
+
+        await startAttentionCamera();
+
+    }
 );
-
-
-/* 攝影機成功後開始視線偵測 */
-await initializeEyeTracking();
-
-startEyeTracking();
-
-} catch (error) {
-
-    console.error(
-        "FocusTale：攝影機啟動失敗",
-        error
-    );
-
-}
-
-}
 
 
 /* =========================================================
@@ -4150,61 +4374,131 @@ startEyeTracking();
 
 async function initializeEyeTracking() {
 
-    if (attentionFaceLandmarkerReady) {
+    /*
+        如果模型已經載入過
+        就不要重複載入
+    */
+    if (
+        attentionFaceLandmarkerReady &&
+        attentionFaceLandmarker
+    ) {
+
         return;
+
     }
 
 
     try {
 
-        /*
-            FilesetResolver 和 FaceLandmarker
-            會由 story.html 載入。
-        */
+        console.log(
+            "FocusTale：開始載入眼睛視線模型"
+        );
+
+
+        /* -------------------------------------------------
+           載入 MediaPipe Tasks Vision
+        ------------------------------------------------- */
+
+        const visionModule =
+    await import(
+        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/+esm"
+    );
+
+
+        const {
+            FaceLandmarker,
+            FilesetResolver
+        } = visionModule;
+
+
+        /* -------------------------------------------------
+           載入 MediaPipe WASM
+        ------------------------------------------------- */
 
         const vision =
-            await FilesetResolver.forVisionTasks(
-                "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/wasm"
-            );
+    await FilesetResolver
+        .forVisionTasks(
 
+            "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
+
+        );
+
+
+        /* -------------------------------------------------
+           建立 Face Landmarker
+        ------------------------------------------------- */
 
         attentionFaceLandmarker =
-            await FaceLandmarker.createFromOptions(
+            await FaceLandmarker
+                .createFromOptions(
 
-                vision,
+                    vision,
 
-                {
+                    {
 
-                    baseOptions: {
+                        baseOptions: {
 
-                        modelAssetPath:
-                            "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/latest/face_landmarker.task",
+                            modelAssetPath:
 
-                        delegate: "GPU"
+                                "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",
 
-                    },
+                            delegate:
+                                "GPU"
 
-
-                    runningMode: "VIDEO",
-
-                    numFaces: 1,
+                        },
 
 
-                    /*
-                        虹膜 landmarks 包含在
-                        Face Landmarker 的臉部 landmarks 中。
-                    */
-
-                    outputFaceBlendshapes: false,
-
-                    outputFacialTransformationMatrixes: false
-
-                }
-
-            );
+                        /*
+                            因為我們分析的是攝影機影片
+                        */
+                        runningMode:
+                            "VIDEO",
 
 
-        attentionFaceLandmarkerReady = true;
+                        /*
+                            FocusTale 一次只分析一張臉
+                        */
+                        numFaces:
+                            1,
+
+
+                        /*
+                            偵測信心門檻
+                        */
+                        minFaceDetectionConfidence:
+                            0.5,
+
+                        minFacePresenceConfidence:
+                            0.5,
+
+                        minTrackingConfidence:
+                            0.5,
+
+
+                        /*
+                            目前不需要表情分析
+                        */
+                        outputFaceBlendshapes:
+                            false,
+
+
+                        /*
+                            目前不使用頭部旋轉矩陣
+                        */
+                        outputFacialTransformationMatrixes:
+                            false
+
+                    }
+
+                );
+
+
+        /* -------------------------------------------------
+           模型載入成功
+        ------------------------------------------------- */
+
+        attentionFaceLandmarkerReady =
+            true;
 
 
         console.log(
@@ -4213,7 +4507,15 @@ async function initializeEyeTracking() {
 
     }
 
+
     catch (error) {
+
+        attentionFaceLandmarkerReady =
+            false;
+
+        attentionFaceLandmarker =
+            null;
+
 
         console.error(
             "FocusTale：眼睛視線模型載入失敗",
@@ -4237,24 +4539,103 @@ function startEyeTracking() {
         );
 
 
+    /* 找不到攝影機 */
     if (!camera) {
+
+        console.error(
+            "FocusTale：眼睛偵測啟動失敗，找不到 camera"
+        );
+
         return;
     }
+
+
+    /* MediaPipe 還沒準備好 */
+    if (
+        !attentionFaceLandmarkerReady ||
+        !attentionFaceLandmarker
+    ) {
+
+        console.error(
+            "FocusTale：眼睛偵測啟動失敗，MediaPipe 尚未完成"
+        );
+
+        return;
+    }
+
+
+    /* -----------------------------------------------------
+       防止重複建立偵測循環
+    ----------------------------------------------------- */
+
+    if (
+        attentionDetectionFrame !==
+        null
+    ) {
+
+        cancelAnimationFrame(
+            attentionDetectionFrame
+        );
+
+        attentionDetectionFrame =
+            null;
+
+    }
+
+
+    /* -----------------------------------------------------
+       初始化這次閱讀的統計資料
+    ----------------------------------------------------- */
+
+    attentionLastVideoTime =
+        -1;
 
 
     attentionSessionStartTime =
         performance.now();
 
 
-    attentionLastFrameTime =
-        performance.now();
+    attentionFocusedTime =
+        0;
 
+
+    attentionLastFrameTime =
+        null;
+
+
+    attentionDistractionCount =
+        0;
+
+
+    attentionDistractionStartTime =
+        null;
+
+
+    attentionCurrentDistractionTime =
+        0;
+
+
+    attentionLastReengagementTime =
+        null;
+
+
+    attentionReengagementTimes =
+        [];
+
+
+    console.log(
+        "FocusTale：開始眼睛視線偵測"
+    );
+
+
+    /* =====================================================
+       每一個攝影機畫面持續分析
+    ===================================================== */
 
     function detectFrame() {
 
         /*
-            如果已經離開故事頁，
-            就停止偵測。
+            攝影機或 MediaPipe 尚未準備完成
         */
 
         if (
@@ -4269,15 +4650,25 @@ function startEyeTracking() {
                 );
 
             return;
-
         }
 
 
+        /*
+            camera.readyState >= 2
+            代表已經有影像資料可以分析
+        */
+
         if (
             camera.readyState >= 2 &&
+            camera.videoWidth > 0 &&
+            camera.videoHeight > 0 &&
             camera.currentTime !==
                 attentionLastVideoTime
         ) {
+
+            /*
+                只分析新的攝影機畫面
+            */
 
             attentionLastVideoTime =
                 camera.currentTime;
@@ -4287,21 +4678,47 @@ function startEyeTracking() {
                 performance.now();
 
 
-            const results =
-                attentionFaceLandmarker
-                    .detectForVideo(
-                        camera,
-                        now
-                    );
+            try {
+
+                /*
+                    MediaPipe 分析目前攝影機畫面
+                */
+
+                const results =
+                    attentionFaceLandmarker
+                        .detectForVideo(
+                            camera,
+                            now
+                        );
 
 
-            processEyeTrackingResults(
-                results,
-                now
-            );
+                /*
+                    把結果交給眼睛視線判斷
+                */
+
+                processEyeTrackingResults(
+                    results,
+                    now
+                );
+
+            }
+
+
+            catch (error) {
+
+                console.error(
+                    "FocusTale：detectForVideo 發生錯誤",
+                    error
+                );
+
+            }
 
         }
 
+
+        /*
+            下一個畫面繼續偵測
+        */
 
         attentionDetectionFrame =
             requestAnimationFrame(
@@ -4311,162 +4728,13 @@ function startEyeTracking() {
     }
 
 
+    /* 第一次啟動 */
     detectFrame();
 
 }
 
-
-
-
-
-    /* -----------------------------------------------------
-       水平位置
-    ----------------------------------------------------- */
-
-    const leftHorizontal =
-        calculateEyeRatio(
-            leftIris.x,
-            leftEyeOuter.x,
-            leftEyeInner.x
-        );
-
-
-    const rightHorizontal =
-        calculateEyeRatio(
-            rightIris.x,
-            rightEyeInner.x,
-            rightEyeOuter.x
-        );
-
-
-    const horizontal =
-        (
-            leftHorizontal +
-            rightHorizontal
-        ) / 2;
-
-
-    /* -----------------------------------------------------
-       垂直方向
-
-       使用上下眼皮 landmarks。
-    ----------------------------------------------------- */
-
-    const leftEyeTop =
-        landmarks[159];
-
-    const leftEyeBottom =
-        landmarks[145];
-
-    const rightEyeTop =
-        landmarks[386];
-
-    const rightEyeBottom =
-        landmarks[374];
-
-
-    const leftVertical =
-        calculateEyeRatio(
-            leftIris.y,
-            leftEyeTop.y,
-            leftEyeBottom.y
-        );
-
-
-    const rightVertical =
-        calculateEyeRatio(
-            rightIris.y,
-            rightEyeTop.y,
-            rightEyeBottom.y
-        );
-
-
-    const vertical =
-        (
-            leftVertical +
-            rightVertical
-        ) / 2;
-
-
-    /* -----------------------------------------------------
-       判斷方向
-    ----------------------------------------------------- */
-
-    let lookingAtScreen = true;
-
-
-    if (
-        horizontal <
-        GAZE_HORIZONTAL_MIN
-    ) {
-
-        attentionGazeDirection =
-            "左";
-
-        lookingAtScreen = false;
-
-    }
-
-    else if (
-        horizontal >
-        GAZE_HORIZONTAL_MAX
-    ) {
-
-        attentionGazeDirection =
-            "右";
-
-        lookingAtScreen = false;
-
-    }
-
-    else if (
-        vertical <
-        GAZE_VERTICAL_MIN
-    ) {
-
-        attentionGazeDirection =
-            "上";
-
-        lookingAtScreen = false;
-
-    }
-
-    else if (
-        vertical >
-        GAZE_VERTICAL_MAX
-    ) {
-
-        attentionGazeDirection =
-            "下";
-
-        lookingAtScreen = false;
-
-    }
-
-    else {
-
-        attentionGazeDirection =
-            "中央";
-
-        lookingAtScreen = true;
-
-    }
-
-
-    updateAttentionState(
-        lookingAtScreen,
-        now
-    );
-
-
-    updateAttentionDebugPanel(
-        true,
-        horizontal,
-        vertical
-    );
-
-    /* =========================================================
-   59-4. 處理眼睛視線偵測結果
+/* =========================================================
+   59-4. 分析眼睛視線
 ========================================================= */
 
 function processEyeTrackingResults(
@@ -4489,8 +4757,8 @@ function processEyeTrackingResults(
 
 
         /*
-            沒有偵測到眼睛／臉，
-            視為沒有看畫面。
+            沒有偵測到臉
+            → 視為沒有注視畫面
         */
 
         updateAttentionState(
@@ -4509,52 +4777,95 @@ function processEyeTrackingResults(
 
 
     /* =====================================================
-       ② 取得臉部 landmarks
+       ② 取得第一張臉的 landmarks
     ===================================================== */
 
     const landmarks =
         results.faceLandmarks[0];
 
 
-    /*
-        MediaPipe Face Landmarker
+    /* =====================================================
+       ③ 取得左右虹膜中心
 
-        左眼虹膜中心：468
-        右眼虹膜中心：473
-    */
+       左虹膜：
+       468～472
+
+       右虹膜：
+       473～477
+
+       使用 5 個點平均
+       比只使用單一 landmark 穩定
+    ===================================================== */
 
     const leftIris =
-        landmarks[468];
+        getAverageLandmark(
+            landmarks,
+            [
+                468,
+                469,
+                470,
+                471,
+                472
+            ]
+        );
+
 
     const rightIris =
-        landmarks[473];
+        getAverageLandmark(
+            landmarks,
+            [
+                473,
+                474,
+                475,
+                476,
+                477
+            ]
+        );
 
 
-    /*
-        左眼左右邊界
-    */
+    /* =====================================================
+       ④ 左右眼的左右邊界
+    ===================================================== */
 
     const leftEyeOuter =
         landmarks[33];
+
 
     const leftEyeInner =
         landmarks[133];
 
 
-    /*
-        右眼左右邊界
-    */
-
     const rightEyeInner =
         landmarks[362];
+
 
     const rightEyeOuter =
         landmarks[263];
 
 
-    /* -----------------------------------------------------
-       防止 landmark 不完整
-    ----------------------------------------------------- */
+    /* =====================================================
+       ⑤ 左右眼的上下邊界
+    ===================================================== */
+
+    const leftEyeTop =
+        landmarks[159];
+
+
+    const leftEyeBottom =
+        landmarks[145];
+
+
+    const rightEyeTop =
+        landmarks[386];
+
+
+    const rightEyeBottom =
+        landmarks[374];
+
+
+    /* =====================================================
+       ⑥ 防止 landmark 資料不完整
+    ===================================================== */
 
     if (
         !leftIris ||
@@ -4562,7 +4873,11 @@ function processEyeTrackingResults(
         !leftEyeOuter ||
         !leftEyeInner ||
         !rightEyeInner ||
-        !rightEyeOuter
+        !rightEyeOuter ||
+        !leftEyeTop ||
+        !leftEyeBottom ||
+        !rightEyeTop ||
+        !rightEyeBottom
     ) {
 
         attentionGazeDirection =
@@ -4582,10 +4897,297 @@ function processEyeTrackingResults(
 
         return;
     }
+
+
+    /* =====================================================
+       ⑦ 計算水平方向
+    ===================================================== */
+
+    const leftHorizontal =
+        calculateEyeRatio(
+
+            leftIris.x,
+
+            leftEyeOuter.x,
+
+            leftEyeInner.x
+
+        );
+
+
+    const rightHorizontal =
+        calculateEyeRatio(
+
+            rightIris.x,
+
+            rightEyeInner.x,
+
+            rightEyeOuter.x
+
+        );
+
+
+    /*
+        左右眼取平均
+    */
+
+    const horizontal =
+        (
+            leftHorizontal +
+            rightHorizontal
+        ) / 2;
+
+
+    /* =====================================================
+       ⑧ 計算垂直方向
+    ===================================================== */
+
+    const leftVertical =
+        calculateEyeRatio(
+
+            leftIris.y,
+
+            leftEyeTop.y,
+
+            leftEyeBottom.y
+
+        );
+
+
+    const rightVertical =
+        calculateEyeRatio(
+
+            rightIris.y,
+
+            rightEyeTop.y,
+
+            rightEyeBottom.y
+
+        );
+
+
+    /*
+        左右眼取平均
+    */
+
+    const vertical =
+        (
+            leftVertical +
+            rightVertical
+        ) / 2;
+
+
+    /* =====================================================
+       ⑨ 判斷是否仍在看畫面
+    ===================================================== */
+
+    let lookingAtScreen =
+        true;
+
+
+    /* ---------- 左 ---------- */
+
+    if (
+        horizontal <
+        GAZE_HORIZONTAL_MIN
+    ) {
+
+        attentionGazeDirection =
+            "左";
+
+
+        lookingAtScreen =
+            false;
+
+    }
+
+
+    /* ---------- 右 ---------- */
+
+    else if (
+        horizontal >
+        GAZE_HORIZONTAL_MAX
+    ) {
+
+        attentionGazeDirection =
+            "右";
+
+
+        lookingAtScreen =
+            false;
+
+    }
+
+
+    /* ---------- 上 ---------- */
+
+    else if (
+        vertical <
+        GAZE_VERTICAL_MIN
+    ) {
+
+        attentionGazeDirection =
+            "上";
+
+
+        lookingAtScreen =
+            false;
+
+    }
+
+
+    /* ---------- 下 ---------- */
+
+    else if (
+        vertical >
+        GAZE_VERTICAL_MAX
+    ) {
+
+        attentionGazeDirection =
+            "下";
+
+
+        lookingAtScreen =
+            false;
+
+    }
+
+
+    /* ---------- 中央 ---------- */
+
+    else {
+
+        attentionGazeDirection =
+            "中央";
+
+
+        lookingAtScreen =
+            true;
+
+    }
+
+
+    /* =====================================================
+       ⑩ 更新專注／分心狀態
+    ===================================================== */
+
+    updateAttentionState(
+        lookingAtScreen,
+        now
+    );
+/*
+    將 app.js 的最新視線結果
+    提供給 attention.js
+*/
+
+syncEyeDataToAttention();
+
+    /* =====================================================
+       ⑪ 更新右側後台
+    ===================================================== */
+
+    updateAttentionDebugPanel(
+        true,
+        horizontal,
+        vertical
+    );
+
 }
 
 /* =========================================================
-   59-5. 計算虹膜在眼睛中的相對位置
+   59-5. 計算虹膜中心
+========================================================= */
+
+function getAverageLandmark(
+    landmarks,
+    indexes
+) {
+
+    /*
+        取得指定的 landmarks
+    */
+
+    const points =
+        indexes
+            .map(
+                function (index) {
+
+                    return landmarks[index];
+
+                }
+            )
+            .filter(Boolean);
+
+
+    /*
+        沒有資料
+    */
+
+    if (
+        points.length === 0
+    ) {
+
+        return null;
+
+    }
+
+
+    /* -----------------------------------------------------
+       累加 X / Y / Z
+    ----------------------------------------------------- */
+
+    let x = 0;
+
+    let y = 0;
+
+    let z = 0;
+
+
+    points.forEach(
+        function (point) {
+
+            x +=
+                point.x;
+
+
+            y +=
+                point.y;
+
+
+            z +=
+                point.z || 0;
+
+        }
+    );
+
+
+    /* -----------------------------------------------------
+       回傳平均中心
+    ----------------------------------------------------- */
+
+    return {
+
+        x:
+            x /
+            points.length,
+
+
+        y:
+            y /
+            points.length,
+
+
+        z:
+            z /
+            points.length
+
+    };
+
+}
+
+
+/* =========================================================
+   59-6. 計算虹膜在眼睛中的相對位置
 ========================================================= */
 
 function calculateEyeRatio(
@@ -4594,12 +5196,20 @@ function calculateEyeRatio(
     edge2
 ) {
 
+    /*
+        找出眼睛兩側較小的位置
+    */
+
     const min =
         Math.min(
             edge1,
             edge2
         );
 
+
+    /*
+        找出眼睛兩側較大的位置
+    */
 
     const max =
         Math.max(
@@ -4608,14 +5218,39 @@ function calculateEyeRatio(
         );
 
 
+    /*
+        眼睛寬度／高度
+    */
+
     const size =
         max - min;
 
 
-    if (size <= 0) {
+    /*
+        防止除以 0
+    */
+
+    if (
+        size <= 0
+    ) {
+
         return 0.5;
+
     }
 
+
+    /*
+        回傳虹膜相對位置
+
+        約 0.5：
+        虹膜位於中央
+
+        越靠近 0：
+        越靠其中一側
+
+        越靠近 1：
+        越靠另一側
+    */
 
     return (
         iris - min
@@ -4624,17 +5259,19 @@ function calculateEyeRatio(
 }
 
 
+
 /* =========================================================
-   59-6. 更新專注狀態
+   59-7. 更新視線專注狀態
 
-   眼睛一離開畫面：
-   → 立即開始分心
-   → 分心次數 +1
-   → 立即開始計算分心時間
+   防抖規則：
 
-   眼睛回到畫面：
-   → 結束分心
-   → 記錄重新投入時間
+   連續離開 150ms
+   → 正式記錄一次分心
+
+   連續回到畫面 150ms
+   → 正式結束分心
+
+   分心開始時間仍從「第一次離開」開始計算
 ========================================================= */
 
 function updateAttentionState(
@@ -4642,110 +5279,326 @@ function updateAttentionState(
     now
 ) {
 
-    /* 第一次執行 */
-    if (!attentionLastFrameTime) {
+    /* =====================================================
+       ① 第一次取得有效視線
+    ===================================================== */
 
-        attentionLastFrameTime = now;
+    if (
+        attentionLastFrameTime ===
+        null
+    ) {
+
+        attentionLastFrameTime =
+            now;
+
+
+        attentionIsLookingAtScreen =
+            lookingAtScreen;
+
+
+        attentionDistractionStartTime =
+            null;
+
+
+        attentionCurrentDistractionTime =
+            0;
+
+
+        attentionLeaveCandidateTime =
+            null;
+
+
+        attentionReturnCandidateTime =
+            null;
+
+
+        console.log(
+            "FocusTale：視線初始狀態",
+            lookingAtScreen
+                ? "畫面內"
+                : "尚未穩定"
+        );
+
 
         return;
+
     }
 
 
+    /* =====================================================
+       ② 計算上一幀到現在經過多久
+    ===================================================== */
+
     const delta =
-        now - attentionLastFrameTime;
+        Math.max(
+            0,
+            now -
+            attentionLastFrameTime
+        );
 
 
-    attentionLastFrameTime = now;
+    attentionLastFrameTime =
+        now;
 
 
     /* =====================================================
-       ① 眼睛正在看畫面
+       ③ 眼睛正在看畫面
     ===================================================== */
 
     if (lookingAtScreen) {
 
-        /* 累積注視畫面時間 */
-        attentionFocusedTime += delta;
+        /*
+            已經回到畫面，
+            所以取消離開候選。
+        */
+
+        attentionLeaveCandidateTime =
+            null;
 
 
-        /* 如果剛才正在分心 */
+        /* =============================================
+           目前沒有正式分心
+           → 正常累積專注時間
+        ============================================= */
+
         if (
-            attentionDistractionStartTime !== null
+            attentionDistractionStartTime ===
+            null
         ) {
 
-            const reengagementTime =
-                (
-                    now -
-                    attentionDistractionStartTime
-                ) / 1000;
+            attentionFocusedTime +=
+                delta;
 
 
-            attentionLastReengagementTime =
-                reengagementTime;
-
-
-            attentionReengagementTimes.push(
-                reengagementTime
-            );
-
-
-            console.log(
-                "FocusTale：重新投入",
-                reengagementTime.toFixed(2),
-                "秒"
-            );
-
-
-            /* 結束這次分心 */
-            attentionDistractionStartTime =
+            attentionReturnCandidateTime =
                 null;
 
 
-            attentionCurrentDistractionTime =
-                0;
+            attentionIsLookingAtScreen =
+                true;
+
+
+            return;
 
         }
 
 
-        attentionIsLookingAtScreen = true;
+        /* =============================================
+           目前正在分心
 
-        return;
-    }
+           第一次偵測到回來
+           → 開始回歸確認
+        ============================================= */
+
+        if (
+            attentionReturnCandidateTime ===
+            null
+        ) {
+
+            attentionReturnCandidateTime =
+                now;
 
 
-    /* =====================================================
-       ② 眼睛離開畫面
-    ===================================================== */
+            return;
 
-    attentionIsLookingAtScreen = false;
+        }
 
 
-    /*
-        如果上一刻沒有在分心，
-        代表現在剛離開畫面。
+        /*
+            已經連續回來多久
+        */
 
-        不等待，立即建立分心事件。
-    */
+        const returnDuration =
+            now -
+            attentionReturnCandidateTime;
 
-    if (
-        attentionDistractionStartTime === null
-    ) {
 
-        attentionDistractionStartTime = now;
+        /*
+            還不到確認時間
+        */
 
-        attentionDistractionCount++;
+        if (
+            returnDuration <
+            ATTENTION_RETURN_CONFIRM_TIME
+        ) {
+
+            return;
+
+        }
+
+
+        /* =============================================
+           已穩定回到畫面
+           → 正式重新投入
+        ============================================= */
+
+        const reengagementTime =
+            (
+                attentionReturnCandidateTime -
+                attentionDistractionStartTime
+            ) / 1000;
+
+
+        attentionLastReengagementTime =
+            reengagementTime;
+
+
+        attentionReengagementTimes.push(
+            reengagementTime
+        );
 
 
         console.log(
-            "FocusTale：視線離開畫面，開始計算分心"
+            "FocusTale：重新投入",
+            reengagementTime.toFixed(2),
+            "秒"
         );
+
+
+        /*
+            回歸確認期間其實已經在看畫面，
+            補進專注時間。
+        */
+
+        attentionFocusedTime +=
+            now -
+            attentionReturnCandidateTime;
+
+
+        /*
+            正式結束分心
+        */
+
+        attentionDistractionStartTime =
+            null;
+
+
+        attentionCurrentDistractionTime =
+            0;
+
+
+        attentionReturnCandidateTime =
+            null;
+
+
+        attentionIsLookingAtScreen =
+            true;
+
+
+        return;
 
     }
 
 
     /* =====================================================
-       ③ 持續計算本次分心時間
+       ④ 眼睛離開畫面
     ===================================================== */
+
+    /*
+        又離開畫面，
+        取消回歸候選。
+    */
+
+    attentionReturnCandidateTime =
+        null;
+
+
+    /* =============================================
+       已經是正式分心
+       → 持續更新時間
+    ============================================= */
+
+    if (
+        attentionDistractionStartTime !==
+        null
+    ) {
+
+        attentionIsLookingAtScreen =
+            false;
+
+
+        attentionCurrentDistractionTime =
+            (
+                now -
+                attentionDistractionStartTime
+            ) / 1000;
+
+
+        return;
+
+    }
+
+
+    /* =============================================
+       第一次偵測到離開
+
+       先建立候選，
+       暫時不 +1。
+    ============================================= */
+
+    if (
+        attentionLeaveCandidateTime ===
+        null
+    ) {
+
+        attentionLeaveCandidateTime =
+            now;
+
+
+        return;
+
+    }
+
+
+    /*
+        已經連續離開多久
+    */
+
+    const leaveDuration =
+        now -
+        attentionLeaveCandidateTime;
+
+
+    /*
+        不到 150ms
+        → 暫時視為可能的偵測抖動
+    */
+
+    if (
+        leaveDuration <
+        ATTENTION_LEAVE_CONFIRM_TIME
+    ) {
+
+        return;
+
+    }
+
+
+    /* =============================================
+       ⑤ 正式確認分心
+
+       注意：
+
+       雖然現在才確認，
+       但開始時間使用第一次離開的時間。
+
+       所以沒有少算前面的 150ms。
+    ============================================= */
+
+    attentionDistractionStartTime =
+        attentionLeaveCandidateTime;
+
+
+    attentionLeaveCandidateTime =
+        null;
+
+
+    attentionIsLookingAtScreen =
+        false;
+
+
+    attentionDistractionCount++;
+
 
     attentionCurrentDistractionTime =
         (
@@ -4753,10 +5606,146 @@ function updateAttentionState(
             attentionDistractionStartTime
         ) / 1000;
 
+
+    console.log(
+        "FocusTale：視線持續離開，正式記錄分心"
+    );
+
 }
 
 /* =========================================================
-   59-7. 更新眼睛偵測後台
+   提供眼睛偵測結果給 attention.js
+========================================================= */
+
+function syncEyeDataToAttention() {
+
+    window.focusTaleEyeData = {
+
+        ready:
+            attentionFaceLandmarkerReady === true,
+
+        lookingAtScreen:
+            attentionIsLookingAtScreen,
+
+        direction:
+            attentionGazeDirection,
+
+        distractionCount:
+            attentionDistractionCount,
+
+        isDistracted:
+            attentionDistractionStartTime !== null,
+
+        distractionStartTime:
+            attentionDistractionStartTime,
+
+        currentDistractionTime:
+            attentionCurrentDistractionTime,
+
+        reengagementTimes:
+            [
+                ...attentionReengagementTimes
+            ]
+
+    };
+
+}
+
+/* =========================================================
+   60. 關閉攝影機＋停止眼睛視線偵測
+========================================================= */
+
+function stopAttentionCamera() {
+
+    /* -----------------------------------------------------
+       ① 停止眼睛偵測動畫
+    ----------------------------------------------------- */
+
+    if (
+        attentionDetectionFrame !==
+        null
+    ) {
+
+        cancelAnimationFrame(
+            attentionDetectionFrame
+        );
+
+        attentionDetectionFrame =
+            null;
+
+    }
+
+
+    /* -----------------------------------------------------
+       ② 關閉攝影機串流
+    ----------------------------------------------------- */
+
+    if (
+        attentionCameraStream
+    ) {
+
+        attentionCameraStream
+            .getTracks()
+            .forEach(
+                function (track) {
+
+                    track.stop();
+
+                }
+            );
+
+
+        attentionCameraStream =
+            null;
+
+    }
+
+
+    /* -----------------------------------------------------
+       ③ 清除 video 的串流
+    ----------------------------------------------------- */
+
+    const camera =
+        document.getElementById(
+            "attentionCamera"
+        );
+
+
+    if (camera) {
+
+        camera.pause();
+
+        camera.srcObject =
+            null;
+
+    }
+
+
+    /* -----------------------------------------------------
+       ④ 重設偵測狀態
+    ----------------------------------------------------- */
+
+    attentionLastVideoTime =
+        -1;
+
+
+    attentionLastFrameTime =
+        null;
+
+
+    attentionIsLookingAtScreen =
+        false;
+
+
+    console.log(
+        "FocusTale：攝影機與視線偵測已停止"
+    );
+
+}
+
+
+/* =========================================================
+   59-8. 更新右下角視線偵測後台
 ========================================================= */
 
 function updateAttentionDebugPanel(
@@ -4771,32 +5760,56 @@ function updateAttentionDebugPanel(
         );
 
 
+    /*
+        找不到後台顯示區
+        就不更新
+    */
+
     if (!debug) {
+
         return;
+
     }
 
 
+    /* =====================================================
+       ① 計算總閱讀時間
+    ===================================================== */
+
     const totalTime =
         attentionSessionStartTime
+
             ? performance.now() -
                 attentionSessionStartTime
+
             : 0;
 
 
+    /* =====================================================
+       ② 計算注視比例
+    ===================================================== */
+
     const focusRate =
         totalTime > 0
+
             ? (
                 attentionFocusedTime /
                 totalTime
             ) * 100
+
             : 0;
 
+
+    /* =====================================================
+       ③ 計算平均重新投入時間
+    ===================================================== */
 
     const averageReengagement =
         attentionReengagementTimes.length > 0
 
             ? attentionReengagementTimes
                 .reduce(
+
                     function (
                         total,
                         value
@@ -4808,20 +5821,27 @@ function updateAttentionDebugPanel(
                         );
 
                     },
+
                     0
+
                 ) /
                 attentionReengagementTimes.length
 
             : 0;
 
 
+    /* =====================================================
+       ④ 更新右下角內容
+    ===================================================== */
+
     debug.innerHTML = `
 
         <strong>
-            🟢 視線偵測中
+            🟢 眼睛專注偵測中
         </strong>
 
         <br>
+
 
         👤 ${
             faceDetected
@@ -4831,10 +5851,12 @@ function updateAttentionDebugPanel(
 
         <br>
 
+
         👀 視線方向：
         ${attentionGazeDirection}
 
         <br>
+
 
         🎯 注視畫面：
         ${
@@ -4846,6 +5868,7 @@ function updateAttentionDebugPanel(
 
         <br>
 
+
         📊 注視比例：
         ${
             focusRate.toFixed(1)
@@ -4853,10 +5876,12 @@ function updateAttentionDebugPanel(
 
         <br>
 
+
         ↪️ 分心次數：
         ${attentionDistractionCount} 次
 
         <br>
+
 
         ⌛ 本次分心：
         ${
@@ -4865,6 +5890,7 @@ function updateAttentionDebugPanel(
         } 秒
 
         <br>
+
 
         🔄 最近重新投入：
         ${
@@ -4880,9 +5906,10 @@ function updateAttentionDebugPanel(
 
         <br>
 
+
         📊 平均重新投入：
         ${
-            averageReengagement > 0
+            attentionReengagementTimes.length > 0
 
                 ? averageReengagement
                     .toFixed(1) +
@@ -4893,6 +5920,7 @@ function updateAttentionDebugPanel(
 
         <br>
 
+
         ${
             horizontal !== null
 
@@ -4901,6 +5929,7 @@ function updateAttentionDebugPanel(
 
                 : ""
         }
+
 
         ${
             vertical !== null
@@ -4914,96 +5943,6 @@ function updateAttentionDebugPanel(
     `;
 
 }
-
-
-/* =========================================================
-   60. 關閉攝影機
-========================================================= */
-
-function stopAttentionCamera() {
-
-    if (!attentionCameraStream) {
-
-        return;
-
-    }
-
-
-    /*
-        關閉所有攝影機軌道。
-    */
-
-    attentionCameraStream
-        .getTracks()
-        .forEach(
-
-            function (track) {
-
-                track.stop();
-
-            }
-
-        );
-
-
-    attentionCameraStream =
-        null;
-
-
-    const camera =
-        document.getElementById(
-            "attentionCamera"
-        );
-
-
-    if (camera) {
-
-        camera.srcObject =
-            null;
-
-    }
-
-
-    console.log(
-        "FocusTale：攝影機已關閉"
-    );
-
-}
-
-
-/* =========================================================
-   61. 故事頁載入後啟動攝影機
-========================================================= */
-
-document.addEventListener(
-
-    "DOMContentLoaded",
-
-    function () {
-
-        const camera =
-            document.getElementById(
-                "attentionCamera"
-            );
-
-
-        /*
-            只有 story.html
-            有 attentionCamera，
-            所以其他頁面不會啟動攝影機。
-        */
-
-        if (camera) {
-
-            startAttentionCamera();
-
-        }
-
-    }
-
-);
-
-
 
 /* =========================================================
    FocusTale app.js

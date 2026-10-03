@@ -5,38 +5,74 @@ console.log(
 
 /* =========================================================
    FocusTale
-   專注行為分析
+   眼睛視線專注行為分析
+
+   注意：
+
+   app.js
+   → 負責攝影機
+   → 負責 MediaPipe
+   → 負責眼睛 / 虹膜視線判斷
+   → 提供 attentionGazeDirection
+
+   attention.js
+   → 不再建立 MediaPipe
+   → 不再判斷頭部方向
+   → 只負責統計與保存資料
 ========================================================= */
 
 
-/* ---------------------------------------------------------
-   取得畫面上的元素
---------------------------------------------------------- */
+/* =========================================================
+   基本設定
+========================================================= */
 
-const camera =
-    document.getElementById(
-        "attentionCamera"
-    );
+/*
+    每 1 秒保存一次資料
+*/
+
+const DATA_SAVE_INTERVAL =
+    1000;
+
+
+/*
+    每 1 秒記錄一次 timeline
+
+    不要每一個 requestAnimationFrame
+    都 push 一筆，
+    否則閱讀幾分鐘就會產生大量資料。
+*/
+
+const TIMELINE_INTERVAL =
+    1000;
+
+
+/* =========================================================
+   DOM 元素
+========================================================= */
 
 const attentionStatus =
     document.getElementById(
         "attentionStatus"
     );
 
+
 const faceStatus =
     document.getElementById(
         "faceStatus"
     );
+
 
 const headDirectionStatus =
     document.getElementById(
         "headDirectionStatus"
     );
 
+
 const focusTimeStatus =
     document.getElementById(
         "focusTimeStatus"
     );
+
 
 const focusRatioStatus =
     document.getElementById(
@@ -49,6 +85,7 @@ const distractionStatus =
         "distractionStatus"
     );
 
+
 const distractionDurationStatus =
     document.getElementById(
         "distractionDurationStatus"
@@ -60,450 +97,486 @@ const reengagementStatus =
         "reengagementStatus"
     );
 
+
 const averageReengagementStatus =
     document.getElementById(
         "averageReengagementStatus"
     );
-/* ---------------------------------------------------------
-   MediaPipe 變數
---------------------------------------------------------- */
-
-let faceLandmarker = null;
-
-let lastVideoTime = -1;
-
-/* 上一次同步故事互動資料的時間 */
-let lastStoryDataUpdateTime = 0;
-
-
-/* ---------------------------------------------------------
-   專注歷程
---------------------------------------------------------- */
-
-/* 儲存整個閱讀過程的專注狀態 */
-let attentionTimeline = [];
-
-/* 上一次記錄歷程的時間 */
-let lastTimelineRecordTime = 0;
-
-/* 每 1 秒記錄一次 */
-const TIMELINE_INTERVAL = 1000;
-
-
-
-/* ---------------------------------------------------------
-   持續注意計時
---------------------------------------------------------- */
-
-/* 開始觀察的時間 */
-let attentionStartTime = null;
-
-/* 上一次更新時間 */
-let lastAttentionUpdateTime = null;
-
-/* 累積面向畫面的毫秒數 */
-let focusedTime = 0;
-
-/* 目前頭部方向 */
-let currentHeadDirection = "UNKNOWN";
-
-/* 上一次統計頭部方向的時間 */
-let lastHeadDirectionUpdateTime = null;
-
-/* ---------------------------------------------------------
-   分心事件紀錄
---------------------------------------------------------- */
-
-/* 開始偏離中央的時間 */
-let distractionStartTime = null;
-
-/* 目前是否已經正式算成一次分心 */
-let isDistracted = false;
-
-/* 分心次數 */
-let distractionCount = 0;
-
-/* 每一次分心的完整資料 */
-let distractionEvents = [];
-
-/* 每次重新投入所花的時間 */
-let reengagementTimes = [];
-
-/*
-    超過 2 秒才正式算一次分心
-*/
-const DISTRACTION_THRESHOLD = 2000;
 
 
 /* =========================================================
-   六大行為分析指標
+   專注時間
 ========================================================= */
 
-let behaviorAnalysis = {
+/*
+    開始分析時間
+*/
 
-    // ① 持續注意
-    attention: {
-        totalTime: 0,
-        focusedTime: 0,
-        focusRate: 0
-    },
-
-    // ② 分心事件
-    distraction: {
-        count: 0,
-        totalTime: 0,
-        events: []
-    },
-
-    // ③ 重新投入
-    reengagement: {
-        count: 0,
-        averageTime: 0,
-        times: []
-    },
-
-    // ④ 視覺方向
-    headDirection: {
-        center: 0,
-        left: 0,
-        right: 0,
-        up: 0,
-        down: 0,
-        unknown: 0
-    },
-
-    // ⑤ 任務反應
-    interaction: {
-        deerReactionTime: null,
-        giftTotalTime: null,
-        giftTimes: []
-    },
-
-    // ⑥ 故事理解
-    comprehension: {
-        reactionTime: null,
-        selectedAnswer: null,
-        correct: null
-    }
-
-};
+let attentionStartTime =
+    null;
 
 
-/* ---------------------------------------------------------
-   載入 MediaPipe
---------------------------------------------------------- */
+/*
+    上一次更新專注時間
+*/
 
-async function initializeFaceDetection() {
-
-    try {
-
-        attentionStatus.textContent =
-            "🟡 正在載入臉部偵測...";
+let lastAttentionUpdateTime =
+    null;
 
 
-        /*
-            從 CDN 載入 MediaPipe Tasks Vision
-        */
+/*
+    總閱讀時間
+    單位：毫秒
+*/
 
-        const vision =
-            await import(
-                "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/+esm"
-            );
-
-
-        const {
-            FaceLandmarker,
-            FilesetResolver
-        } = vision;
+let totalAttentionTime =
+    0;
 
 
-        /*
-            載入 MediaPipe WASM
-        */
+/*
+    眼睛看畫面的時間
+    單位：毫秒
+*/
 
-        const filesetResolver =
-            await FilesetResolver.forVisionTasks(
-
-                "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
-
-            );
-
-
-        /*
-            建立 Face Landmarker
-        */
-
-        faceLandmarker =
-            await FaceLandmarker.createFromOptions(
-
-                filesetResolver,
-
-                {
-
-                    baseOptions: {
-
-                        modelAssetPath:
-
-                            "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task"
-
-                    },
-
-                    runningMode:
-                        "VIDEO",
-
-                    numFaces:
-                        1
-
-                }
-
-            );
-
-console.log(
-    "【測試】FaceLandmarker 建立完成"
-);
-
-
-if (attentionStatus) {
-
-    attentionStatus.textContent =
-        "🟢 專注偵測中";
-
-}
-
-
-if (faceStatus) {
-
-    faceStatus.textContent =
-        "👤 準備偵測臉部...";
-
-}
-
-
-console.log(
-    "FocusTale：MediaPipe 載入成功"
-);
-
-
-detectFace();
-
-    }
-
-    catch (error) {
-
-        if (attentionStatus) {
-
-            attentionStatus.textContent =
-                "🔴 臉部偵測載入失敗";
-
-        }
-
-
-        console.error(
-            "FocusTale：MediaPipe 載入失敗",
-            error
-        );
-
-    }
-
-}
+let focusedAttentionTime =
+    0;
 
 
 /* =========================================================
-   判斷頭部方向
+   目前眼睛視線方向
 
-   使用 Face Landmarker 的臉部特徵點，
-   以鼻子相對於臉部左右、上下位置
-   做簡單的方向估計。
+   為了相容原本 report.js，
+   暫時保留 currentHeadDirection 名稱。
 
-   回傳：
+   但現在它代表的是：
+
    CENTER
    LEFT
    RIGHT
    UP
    DOWN
    UNKNOWN
+
+   全部都是「眼睛視線」。
 ========================================================= */
 
-function getHeadDirection(
-    landmarks
-) {
-
-    if (
-        !landmarks ||
-        landmarks.length === 0
-    ) {
-
-        return "UNKNOWN";
-
-    }
+let currentHeadDirection =
+    "UNKNOWN";
 
 
-    /*
-        MediaPipe Face Landmarker 特徵點
+/* =========================================================
+   視線方向時間
+========================================================= */
 
-        1   ：鼻子附近
-        234 ：臉部左側
-        454 ：臉部右側
-        10  ：臉部上方
-        152 ：下巴
-    */
+let headDirectionTimes = {
 
-    const nose =
-        landmarks[1];
+    CENTER: 0,
 
-    const leftFace =
-        landmarks[234];
+    LEFT: 0,
 
-    const rightFace =
-        landmarks[454];
+    RIGHT: 0,
 
-    const forehead =
-        landmarks[10];
+    UP: 0,
 
-    const chin =
-        landmarks[152];
+    DOWN: 0,
+
+    UNKNOWN: 0
+
+};
 
 
-    if (
-        !nose ||
-        !leftFace ||
-        !rightFace ||
-        !forehead ||
-        !chin
-    ) {
-
-        return "UNKNOWN";
-
-    }
+let previousHeadDirection =
+    "UNKNOWN";
 
 
-    /* -----------------------------
-       左右方向
-    ----------------------------- */
-
-    const faceCenterX =
-        (
-            leftFace.x +
-            rightFace.x
-        ) / 2;
+let lastHeadDirectionUpdateTime =
+    null;
 
 
-    const faceWidth =
-        Math.abs(
-            rightFace.x -
-            leftFace.x
-        );
+/* =========================================================
+   分心事件
+========================================================= */
 
-
-    if (faceWidth <= 0) {
-
-        return "UNKNOWN";
-
-    }
-
-
-    const horizontalOffset =
-        (
-            nose.x -
-            faceCenterX
-        ) / faceWidth;
-
-
-    /* -----------------------------
-       上下方向
-    ----------------------------- */
-
-    const faceCenterY =
-        (
-            forehead.y +
-            chin.y
-        ) / 2;
-
-
-    const faceHeight =
-        Math.abs(
-            chin.y -
-            forehead.y
-        );
-
-
-    if (faceHeight <= 0) {
-
-        return "UNKNOWN";
-
-    }
-
-
-const verticalOffset =
-    (
-        nose.y -
-        faceCenterY
-    ) / faceHeight;
-
-
-console.log(
-    "horizontalOffset:",
-    horizontalOffset.toFixed(3),
-    "verticalOffset:",
-    verticalOffset.toFixed(3)
-);
-
-
-    /*
-        先判斷幅度較明顯的方向。
-
-        這些門檻之後可以依實際測試
-        再調整，不把它當成醫療判定。
-    */
-
-
-    /*
-    上下方向優先判斷
+/*
+    本次分心開始時間
 */
 
-if (verticalOffset < -0.05) {
-
-    return "UP";
-
-}
-
-
-if (verticalOffset > 0.10) {
-
-    return "DOWN";
-
-}
+let distractionStartTime =
+    null;
 
 
 /*
-    再判斷左右
+    目前是否正在分心
 */
 
-if (horizontalOffset < -0.12) {
-
-    return "RIGHT";
-
-}
-
-
-if (horizontalOffset > 0.12) {
-
-    return "LEFT";
-
-}
+let isDistracted =
+    false;
 
 
 /*
-    都沒有超過門檻
-    就視為大致面向中央
+    分心次數
 */
 
-return "CENTER";
+let distractionCount =
+    0;
+
+
+/*
+    已完成的分心事件
+*/
+
+let distractionEvents =
+    [];
+
+
+/* =========================================================
+   重新投入
+========================================================= */
+
+/*
+    每一次：
+
+    視線離開
+       ↓
+    重新看回中央
+
+    所花的時間
+*/
+
+let reengagementTimes =
+    [];
+
+
+/* =========================================================
+   Timeline
+========================================================= */
+
+let attentionTimeline =
+    [];
+
+
+let lastTimelineRecordTime =
+    0;
+
+
+/* =========================================================
+   每秒保存控制
+========================================================= */
+
+let lastStoryDataUpdateTime =
+    0;
+
+
+/* =========================================================
+   requestAnimationFrame
+========================================================= */
+
+let attentionAnalysisFrame =
+    null;
+
+
+/* =========================================================
+   六大行為分析
+
+   保持原本資料結構，
+   避免 report.js 壞掉。
+========================================================= */
+
+let behaviorAnalysis = {
+
+
+    /* ① 持續注意 */
+
+    attention: {
+
+        totalTime: 0,
+
+        focusedTime: 0,
+
+        focusRate: 0
+
+    },
+
+
+    /* ② 分心事件 */
+
+    distraction: {
+
+        count: 0,
+
+        totalTime: 0,
+
+        events: []
+
+    },
+
+
+    /* ③ 重新投入 */
+
+    reengagement: {
+
+        count: 0,
+
+        averageTime: 0,
+
+        times: []
+
+    },
+
+
+    /*
+        ④ 視覺方向
+
+        欄位名稱 headDirection
+        暫時保留給 report.js。
+
+        實際內容現在是眼睛視線方向。
+    */
+
+    headDirection: {
+
+        center: 0,
+
+        left: 0,
+
+        right: 0,
+
+        up: 0,
+
+        down: 0,
+
+        unknown: 0
+
+    },
+
+
+    /* ⑤ 任務反應 */
+
+    interaction: {
+
+        deerReactionTime: null,
+
+        giftTotalTime: null,
+
+        giftTimes: []
+
+    },
+
+
+    /* ⑥ 故事理解 */
+
+    comprehension: {
+
+        reactionTime: null,
+
+        selectedAnswer: null,
+
+        correct: null
+
+    },
+
+
+    /*
+        專注歷程
+    */
+
+    timeline: []
+
+};
+
+
+/* =========================================================
+   從 app.js 取得最新眼睛視線
+========================================================= */
+
+function syncEyeTrackingData() {
+
+    /*
+        app.js 必須提供：
+
+        attentionGazeDirection
+
+        值預期為：
+
+        中央
+        左
+        右
+        上
+        下
+        未偵測
+    */
+
+    if (
+        typeof attentionGazeDirection ===
+        "undefined"
+    ) {
+
+        currentHeadDirection =
+            "UNKNOWN";
+
+
+        updateEyeDirectionDisplay();
+
+
+        return;
+
+    }
+
+
+    if (
+        attentionGazeDirection ===
+        "中央"
+    ) {
+
+        currentHeadDirection =
+            "CENTER";
+
+    }
+
+
+    else if (
+        attentionGazeDirection ===
+        "左"
+    ) {
+
+        currentHeadDirection =
+            "LEFT";
+
+    }
+
+
+    else if (
+        attentionGazeDirection ===
+        "右"
+    ) {
+
+        currentHeadDirection =
+            "RIGHT";
+
+    }
+
+
+    else if (
+        attentionGazeDirection ===
+        "上"
+    ) {
+
+        currentHeadDirection =
+            "UP";
+
+    }
+
+
+    else if (
+        attentionGazeDirection ===
+        "下"
+    ) {
+
+        currentHeadDirection =
+            "DOWN";
+
+    }
+
+
+    else {
+
+        currentHeadDirection =
+            "UNKNOWN";
+
+    }
+
+
+    updateEyeDirectionDisplay();
+
 }
 
 
 /* =========================================================
-   持續注意時間統計
+   更新畫面上的視線文字
+========================================================= */
+
+function updateEyeDirectionDisplay() {
+
+    if (!headDirectionStatus) {
+
+        return;
+
+    }
+
+
+    if (
+        currentHeadDirection ===
+        "CENTER"
+    ) {
+
+        headDirectionStatus.textContent =
+            "👀 視線方向：中央";
+
+    }
+
+
+    else if (
+        currentHeadDirection ===
+        "LEFT"
+    ) {
+
+        headDirectionStatus.textContent =
+            "👀 視線方向：左";
+
+    }
+
+
+    else if (
+        currentHeadDirection ===
+        "RIGHT"
+    ) {
+
+        headDirectionStatus.textContent =
+            "👀 視線方向：右";
+
+    }
+
+
+    else if (
+        currentHeadDirection ===
+        "UP"
+    ) {
+
+        headDirectionStatus.textContent =
+            "👀 視線方向：上";
+
+    }
+
+
+    else if (
+        currentHeadDirection ===
+        "DOWN"
+    ) {
+
+        headDirectionStatus.textContent =
+            "👀 視線方向：下";
+
+    }
+
+
+    else {
+
+        headDirectionStatus.textContent =
+            "👀 視線方向：未偵測";
+
+    }
+
+}
+
+
+/* =========================================================
+   更新專注時間
+
+   CENTER
+   → 專注
+
+   LEFT / RIGHT / UP / DOWN / UNKNOWN
+   → 非專注
 ========================================================= */
 
 function updateAttentionTime() {
@@ -512,20 +585,29 @@ function updateAttentionTime() {
         performance.now();
 
 
-    if (attentionStartTime === null) {
+    /*
+        第一次執行
+    */
+
+    if (
+        attentionStartTime ===
+        null
+    ) {
 
         attentionStartTime =
             now;
 
+
         lastAttentionUpdateTime =
             now;
+
 
         return;
 
     }
 
 
-    const deltaTime =
+    const delta =
         now -
         lastAttentionUpdateTime;
 
@@ -535,7 +617,15 @@ function updateAttentionTime() {
 
 
     /*
-        只有中央才算面向畫面
+        累積總閱讀時間
+    */
+
+    totalAttentionTime +=
+        delta;
+
+
+    /*
+        只有視線中央才算專注
     */
 
     if (
@@ -543,49 +633,64 @@ function updateAttentionTime() {
         "CENTER"
     ) {
 
-        focusedTime +=
-            deltaTime;
+        focusedAttentionTime +=
+            delta;
 
     }
 
 
-    const totalTime =
-        now -
-        attentionStartTime;
+    /*
+        寫入六大行為分析
+    */
+
+    behaviorAnalysis.attention.totalTime =
+        totalAttentionTime /
+        1000;
 
 
-    let focusRatio = 0;
+    behaviorAnalysis.attention.focusedTime =
+        focusedAttentionTime /
+        1000;
 
 
-    if (totalTime > 0) {
+    if (
+        totalAttentionTime > 0
+    ) {
 
-        focusRatio =
+        behaviorAnalysis.attention.focusRate =
             (
-                focusedTime /
-                totalTime
+                focusedAttentionTime /
+                totalAttentionTime
             ) * 100;
 
     }
 
-    /*
-    同步到六大行為分析
-*/
+    else {
 
-behaviorAnalysis.attention.totalTime =
-    totalTime / 1000;
+        behaviorAnalysis.attention.focusRate =
+            0;
 
-behaviorAnalysis.attention.focusedTime =
-    focusedTime / 1000;
+    }
 
-behaviorAnalysis.attention.focusRate =
-    focusRatio;
+
+    updateAttentionDisplay();
+
+}
+
+
+/* =========================================================
+   更新專注資訊顯示
+========================================================= */
+
+function updateAttentionDisplay() {
 
     if (focusTimeStatus) {
 
         focusTimeStatus.textContent =
-            "⏱️ 面向畫面：" +
-            (focusedTime / 1000)
-                .toFixed(1) +
+            (
+                focusedAttentionTime /
+                1000
+            ).toFixed(1) +
             " 秒";
 
     }
@@ -593,9 +698,14 @@ behaviorAnalysis.attention.focusRate =
 
     if (focusRatioStatus) {
 
+        const focusRate =
+            behaviorAnalysis
+                .attention
+                .focusRate;
+
+
         focusRatioStatus.textContent =
-            "📊 面向比例：" +
-            focusRatio.toFixed(1) +
+            focusRate.toFixed(1) +
             "%";
 
     }
@@ -604,7 +714,32 @@ behaviorAnalysis.attention.focusRate =
 
 
 /* =========================================================
-   分心事件判斷
+   更新分心
+
+   規則：
+
+   眼睛只要不是 CENTER
+   → 立即算一次分心
+
+   持續看旁邊
+   → 不重複增加
+
+   看回 CENTER
+   → 結束本次分心
+   → 記錄重新投入時間
+========================================================= */
+
+/* =========================================================
+   更新分心事件
+
+   注意：
+   attention.js 不再自己判斷視線是否離開。
+
+   真正的視線判斷由 app.js 負責：
+   → 150ms 離開防抖
+   → 150ms 回歸防抖
+
+   attention.js 只同步 app.js 已確認的結果。
 ========================================================= */
 
 function updateDistraction() {
@@ -613,220 +748,145 @@ function updateDistraction() {
         performance.now();
 
 
-    /*
-        中央 = 目前面向故事
-    */
+    /* =====================================================
+       ① 確認 app.js 的視線系統是否已經準備好
+    ===================================================== */
 
     if (
-        currentHeadDirection ===
-        "CENTER"
+        typeof window.focusTaleEyeData ===
+        "undefined"
     ) {
 
-        /*
-            如果剛才已經正式進入分心，
-            現在回到中央，就結束這次事件。
-        */
-
-        if (
-            isDistracted &&
-            distractionStartTime !== null
-        ) {
-
-            const duration =
-                now -
-                distractionStartTime;
-
-
-            distractionEvents.push({
-
-                startTime:
-                    (
-                        distractionStartTime -
-                        attentionStartTime
-                    ) / 1000,
-
-                duration:
-                    duration / 1000
-
-            });
-
-
-            behaviorAnalysis.distraction.events =
-    [...distractionEvents];
-
-
-behaviorAnalysis.distraction.totalTime =
-    distractionEvents.reduce(
-
-        function (total, event) {
-
-            return total + event.duration;
-
-        },
-
-        0
-
-    );
-
-            /*
-    分心開始到重新面向中央的時間，
-    作為這次重新投入所需時間。
-*/
-
-const reengagementTime =
-    duration / 1000;
-
-
-reengagementTimes.push(
-    reengagementTime
-);
-
-behaviorAnalysis.reengagement.times =
-    [...reengagementTimes];
-
-behaviorAnalysis.reengagement.count =
-    reengagementTimes.length;
-
-
-/*
-    計算平均重新投入時間
-*/
-
-const totalReengagementTime =
-    reengagementTimes.reduce(
-        function (total, time) {
-
-            return total + time;
-
-        },
-        0
-    );
-
-
-const averageReengagementTime =
-    totalReengagementTime /
-    reengagementTimes.length;
-
-    behaviorAnalysis.reengagement.averageTime =
-    averageReengagementTime;
-
-/*
-    更新右下角
-*/
-
-if (reengagementStatus) {
-
-    reengagementStatus.textContent =
-        "🔄 最近重新投入：" +
-        reengagementTime.toFixed(1) +
-        " 秒";
-
-}
-
-
-if (averageReengagementStatus) {
-
-    averageReengagementStatus.textContent =
-        "📊 平均重新投入：" +
-        averageReengagementTime.toFixed(1) +
-        " 秒";
-
-}
-
-
-            console.log(
-                "FocusTale：分心結束",
-                distractionEvents[
-                    distractionEvents.length - 1
-                ]
-            );
-
-        }
-
-
-        /*
-            回到正常狀態
-        */
-
-        distractionStartTime =
-            null;
-
-        isDistracted =
-            false;
-
-
-        if (
-            distractionDurationStatus
-        ) {
-
-            distractionDurationStatus.textContent =
-                "⏳ 本次分心：0.0 秒";
-
-        }
-
+        updateDistractionDisplay(
+            now
+        );
 
         return;
 
     }
 
 
-    /*
-        不是中央
-        第一次發現偏離時開始計時
-    */
+    const eyeData =
+        window.focusTaleEyeData;
+
+
+    /* =====================================================
+       ② 尚未取得有效視線資料
+
+       → 不算專注
+       → 不算分心
+    ===================================================== */
 
     if (
-        distractionStartTime === null
+        !eyeData.ready
+    ) {
+
+        updateDistractionDisplay(
+            now
+        );
+
+        return;
+
+    }
+
+
+    /* =====================================================
+       ③ 直接同步 app.js 已確認的分心資料
+    ===================================================== */
+
+    distractionCount =
+        eyeData.distractionCount || 0;
+
+
+    isDistracted =
+        eyeData.isDistracted === true;
+
+
+    /* =====================================================
+       ④ 同步目前分心開始時間
+
+       app.js 傳進來的是 performance.now() 時間基準，
+       所以可以直接使用。
+    ===================================================== */
+
+    if (
+        isDistracted &&
+        eyeData.distractionStartTime !== null
     ) {
 
         distractionStartTime =
-            now;
+            eyeData.distractionStartTime;
+
+    }
+
+    else {
+
+        distractionStartTime =
+            null;
 
     }
 
 
-    const duration =
-        now -
-        distractionStartTime;
-
-
-    /*
-        超過 2 秒才正式算一次
-    */
+    /* =====================================================
+       ⑤ 同步重新投入資料
+    ===================================================== */
 
     if (
-        !isDistracted &&
-        duration >=
-        DISTRACTION_THRESHOLD
+        Array.isArray(
+            eyeData.reengagementTimes
+        )
     ) {
 
-        isDistracted =
-            true;
-
-        distractionCount++;
-
-
-        behaviorAnalysis.distraction.count =
-    distractionCount;
-
-
-        console.log(
-            "FocusTale：偵測到第",
-            distractionCount,
-            "次分心"
-        );
+        reengagementTimes =
+            [
+                ...eyeData.reengagementTimes
+            ];
 
     }
 
 
-    /*
-        更新右下角
-    */
+    /* =====================================================
+       ⑥ 同步完成的分心事件
+
+       如果 app.js 有提供，就直接使用。
+    ===================================================== */
+
+    if (
+        Array.isArray(
+            eyeData.distractionEvents
+        )
+    ) {
+
+        distractionEvents =
+            [
+                ...eyeData.distractionEvents
+            ];
+
+    }
+
+
+    /* =====================================================
+       ⑦ 更新畫面
+    ===================================================== */
+
+    updateDistractionDisplay(
+        now
+    );
+
+}
+
+
+/* =========================================================
+   更新分心／重新投入顯示
+========================================================= */
+
+function updateDistractionDisplay(
+    now
+) {
 
     if (distractionStatus) {
 
         distractionStatus.textContent =
-            "↪️ 分心次數：" +
             distractionCount +
             " 次";
 
@@ -837,27 +897,79 @@ if (averageReengagementStatus) {
         distractionDurationStatus
     ) {
 
-        /*
-            未滿 2 秒時，
-            還不把它顯示成正式分心。
-        */
+        let currentDuration =
+            0;
 
-        if (isDistracted) {
 
-            distractionDurationStatus.textContent =
-                "⏳ 本次分心：" +
-                (duration / 1000)
-                    .toFixed(1) +
-                " 秒";
+        if (
+            isDistracted &&
+            distractionStartTime !==
+            null
+        ) {
+
+            currentDuration =
+                (
+                    now -
+                    distractionStartTime
+                ) / 1000;
+
+        }
+
+
+        distractionDurationStatus.textContent =
+            currentDuration.toFixed(1) +
+            " 秒";
+
+    }
+
+
+    if (reengagementStatus) {
+
+        reengagementStatus.textContent =
+            reengagementTimes.length +
+            " 次";
+
+    }
+
+
+    if (
+        averageReengagementStatus
+    ) {
+
+        let average =
+            0;
+
+
+        if (
+            reengagementTimes.length > 0
+        ) {
+
+            average =
+                reengagementTimes.reduce(
+
+                    function (
+                        total,
+                        value
+                    ) {
+
+                        return (
+                            total +
+                            value
+                        );
+
+                    },
+
+                    0
+
+                ) /
+                reengagementTimes.length;
 
         }
 
-        else {
 
-            distractionDurationStatus.textContent =
-                "⏳ 本次分心：0.0 秒";
-
-        }
+        averageReengagementStatus.textContent =
+            average.toFixed(2) +
+            " 秒";
 
     }
 
@@ -865,7 +977,14 @@ if (averageReengagementStatus) {
 
 
 /* =========================================================
-   視覺方向時間統計
+   更新視線方向時間
+
+   注意：
+
+   behaviorAnalysis.headDirection
+   名稱暫時保留。
+
+   但內容現在全部代表眼睛視線。
 ========================================================= */
 
 function updateHeadDirectionTime() {
@@ -875,7 +994,7 @@ function updateHeadDirectionTime() {
 
 
     /*
-        第一次執行時只記錄時間
+        第一次執行
     */
 
     if (
@@ -886,20 +1005,19 @@ function updateHeadDirectionTime() {
         lastHeadDirectionUpdateTime =
             now;
 
+
+        previousHeadDirection =
+            currentHeadDirection;
+
+
         return;
 
     }
 
 
-    /*
-        計算距離上一次更新經過多久
-    */
-
-    const deltaTime =
-        (
-            now -
-            lastHeadDirectionUpdateTime
-        ) / 1000;
+    const delta =
+        now -
+        lastHeadDirectionUpdateTime;
 
 
     lastHeadDirectionUpdateTime =
@@ -907,89 +1025,135 @@ function updateHeadDirectionTime() {
 
 
     /*
-        將時間累積到目前方向
+        將剛才經過的時間
+        加到上一個方向。
     */
 
     if (
-        currentHeadDirection ===
+        previousHeadDirection ===
         "CENTER"
     ) {
 
-        behaviorAnalysis.headDirection.center +=
-            deltaTime;
+        headDirectionTimes.CENTER +=
+            delta;
 
     }
 
+
     else if (
-        currentHeadDirection ===
+        previousHeadDirection ===
         "LEFT"
     ) {
 
-        behaviorAnalysis.headDirection.left +=
-            deltaTime;
+        headDirectionTimes.LEFT +=
+            delta;
 
     }
 
+
     else if (
-        currentHeadDirection ===
+        previousHeadDirection ===
         "RIGHT"
     ) {
 
-        behaviorAnalysis.headDirection.right +=
-            deltaTime;
+        headDirectionTimes.RIGHT +=
+            delta;
 
     }
 
+
     else if (
-        currentHeadDirection ===
+        previousHeadDirection ===
         "UP"
     ) {
 
-        behaviorAnalysis.headDirection.up +=
-            deltaTime;
+        headDirectionTimes.UP +=
+            delta;
 
     }
 
+
     else if (
-        currentHeadDirection ===
+        previousHeadDirection ===
         "DOWN"
     ) {
 
-        behaviorAnalysis.headDirection.down +=
-            deltaTime;
+        headDirectionTimes.DOWN +=
+            delta;
 
     }
+
 
     else {
 
-        behaviorAnalysis.headDirection.unknown +=
-            deltaTime;
+        headDirectionTimes.UNKNOWN +=
+            delta;
 
     }
+
+
+    /*
+        更新目前方向
+    */
+
+    previousHeadDirection =
+        currentHeadDirection;
+
+
+    /*
+        寫進 behaviorAnalysis
+
+        report.js 原本使用小寫，
+        所以這裡保持小寫。
+    */
+
+    behaviorAnalysis.headDirection.center =
+        headDirectionTimes.CENTER /
+        1000;
+
+
+    behaviorAnalysis.headDirection.left =
+        headDirectionTimes.LEFT /
+        1000;
+
+
+    behaviorAnalysis.headDirection.right =
+        headDirectionTimes.RIGHT /
+        1000;
+
+
+    behaviorAnalysis.headDirection.up =
+        headDirectionTimes.UP /
+        1000;
+
+
+    behaviorAnalysis.headDirection.down =
+        headDirectionTimes.DOWN /
+        1000;
+
+
+    behaviorAnalysis.headDirection.unknown =
+        headDirectionTimes.UNKNOWN /
+        1000;
 
 }
 
 
 /* =========================================================
    同步故事互動資料
+
+   app.js 已經把故事互動資料放在：
+
+   focusTaleStoryData
 ========================================================= */
 
 function updateStoryInteractionData() {
-
-    /*
-        從 localStorage 取得 app.js
-        已經保存的故事互動資料
-    */
 
     const savedStoryData =
         localStorage.getItem(
             "focusTaleStoryData"
         );
 
-
-    /*
-        還沒有資料時先不處理
-    */
 
     if (!savedStoryData) {
 
@@ -1006,21 +1170,27 @@ function updateStoryInteractionData() {
             );
 
 
-        /* =============================================
+        /* =================================================
            ⑤ 任務反應
-        ============================================= */
+        ================================================= */
 
-        behaviorAnalysis.interaction.deerReactionTime =
+        behaviorAnalysis
+            .interaction
+            .deerReactionTime =
             storyData.deerReactionTime ??
             null;
 
 
-        behaviorAnalysis.interaction.giftTotalTime =
+        behaviorAnalysis
+            .interaction
+            .giftTotalTime =
             storyData.giftTotalTime ??
             null;
 
 
-        behaviorAnalysis.interaction.giftTimes =
+        behaviorAnalysis
+            .interaction
+            .giftTimes =
             Array.isArray(
                 storyData.giftTimes
             )
@@ -1028,21 +1198,27 @@ function updateStoryInteractionData() {
                 : [];
 
 
-        /* =============================================
+        /* =================================================
            ⑥ 故事理解
-        ============================================= */
+        ================================================= */
 
-        behaviorAnalysis.comprehension.reactionTime =
+        behaviorAnalysis
+            .comprehension
+            .reactionTime =
             storyData.scene6ReactionTime ??
             null;
 
 
-        behaviorAnalysis.comprehension.selectedAnswer =
+        behaviorAnalysis
+            .comprehension
+            .selectedAnswer =
             storyData.scene6SelectedAnswer ??
             null;
 
 
-        behaviorAnalysis.comprehension.correct =
+        behaviorAnalysis
+            .comprehension
+            .correct =
             storyData.scene6Correct ??
             null;
 
@@ -1061,22 +1237,13 @@ function updateStoryInteractionData() {
 
 
 /* =========================================================
-   專注歷程紀錄
+   Timeline
 
-   每 1 秒記錄一次目前的專注狀態，
-   之後用來製作專注歷程圖。
+   每 1 秒記錄一筆，
+   避免每幀產生大量資料。
 ========================================================= */
 
 function recordAttentionTimeline() {
-
-    const now =
-        performance.now();
-
-
-    /*
-        還沒開始計算閱讀時間時
-        先不要記錄
-    */
 
     if (
         attentionStartTime ===
@@ -1088,9 +1255,13 @@ function recordAttentionTimeline() {
     }
 
 
+    const now =
+        performance.now();
+
+
     /*
-        距離上一次紀錄還不到 1 秒
-        就先不記錄
+        距離上一筆不足 1 秒
+        就先不記。
     */
 
     if (
@@ -1108,10 +1279,6 @@ function recordAttentionTimeline() {
         now;
 
 
-    /*
-        計算目前是閱讀開始後第幾秒
-    */
-
     const elapsedTime =
         (
             now -
@@ -1119,16 +1286,16 @@ function recordAttentionTimeline() {
         ) / 1000;
 
 
-    /*
-        建立這一秒的專注資料
-    */
-
-    const timelinePoint = {
+    attentionTimeline.push({
 
         time:
             Number(
                 elapsedTime.toFixed(1)
             ),
+
+        /*
+            這裡實際存的是眼睛視線方向
+        */
 
         direction:
             currentHeadDirection,
@@ -1140,336 +1307,364 @@ function recordAttentionTimeline() {
         distracted:
             isDistracted
 
-    };
-
-
-    /*
-        存進專注歷程
-    */
-
-    attentionTimeline.push(
-        timelinePoint
-    );
-
-    console.log(
-    "FocusTale 專注歷程：",
-    timelinePoint
-);
+    });
 
 }
 
+
 /* =========================================================
-   保存專注行為分析資料
+   將目前分心資料同步進 behaviorAnalysis
+========================================================= */
+
+function syncDistractionAnalysis() {
+
+    const now =
+        performance.now();
+
+
+    behaviorAnalysis.distraction.count =
+        distractionCount;
+
+
+    behaviorAnalysis.distraction.events =
+        [
+            ...distractionEvents
+        ];
+
+
+    /*
+        已完成事件的總時間
+    */
+
+    let totalDistractionTime =
+        distractionEvents.reduce(
+
+            function (
+                total,
+                event
+            ) {
+
+                return (
+                    total +
+                    event.duration
+                );
+
+            },
+
+            0
+
+        );
+
+
+    /*
+        如果目前仍在分心，
+        報告中的 totalTime
+        也先加上正在進行的時間。
+
+        但不 push 到 events，
+        避免完成後重複。
+    */
+
+    if (
+        isDistracted &&
+        distractionStartTime !==
+        null
+    ) {
+
+        totalDistractionTime +=
+            (
+                now -
+                distractionStartTime
+            ) / 1000;
+
+    }
+
+
+    behaviorAnalysis
+        .distraction
+        .totalTime =
+        totalDistractionTime;
+
+}
+
+
+/* =========================================================
+   將重新投入資料同步進 behaviorAnalysis
+========================================================= */
+
+function syncReengagementAnalysis() {
+
+    behaviorAnalysis
+        .reengagement
+        .times =
+        [
+            ...reengagementTimes
+        ];
+
+
+    behaviorAnalysis
+        .reengagement
+        .count =
+        reengagementTimes.length;
+
+
+    if (
+        reengagementTimes.length > 0
+    ) {
+
+        behaviorAnalysis
+            .reengagement
+            .averageTime =
+            reengagementTimes.reduce(
+
+                function (
+                    total,
+                    value
+                ) {
+
+                    return (
+                        total +
+                        value
+                    );
+
+                },
+
+                0
+
+            ) /
+            reengagementTimes.length;
+
+    }
+
+    else {
+
+        behaviorAnalysis
+            .reengagement
+            .averageTime =
+            0;
+
+    }
+
+}
+
+
+/* =========================================================
+   保存完整專注分析
 ========================================================= */
 
 function saveAttentionAnalysis() {
 
     /*
-        將目前的專注歷程放進行為分析資料
+        同步 timeline
     */
 
     behaviorAnalysis.timeline =
-        [...attentionTimeline];
+        [
+            ...attentionTimeline
+        ];
 
-
-    /*
-        保存到 localStorage
-
-        report.html 之後會從這裡讀取。
-    */
 
     localStorage.setItem(
+
         "focusTaleAttentionData",
+
         JSON.stringify(
             behaviorAnalysis
         )
+
     );
 
 }
 
 
-/* ---------------------------------------------------------
-   持續偵測攝影機畫面
---------------------------------------------------------- */
+/* =========================================================
+   每秒完整同步一次資料
+========================================================= */
 
-function detectFace() {
-
-    console.log(
-    "【攝影機檢查】",
-    {
-        faceLandmarker: !!faceLandmarker,
-        camera: !!camera,
-        readyState: camera ? camera.readyState : "沒有 camera",
-        currentTime: camera ? camera.currentTime : "沒有 camera"
-    }
-);
-    if (
-        !faceLandmarker ||
-        !camera
-    ) {
-
-        requestAnimationFrame(
-            detectFace
-        );
-
-        return;
-
-    }
-
+function saveCurrentAnalysis() {
 
     /*
-        等攝影機真的有畫面
+        分心
     */
 
-    if (
-        camera.readyState < 2
-    ) {
-
-        requestAnimationFrame(
-            detectFace
-        );
-
-        return;
-
-    }
+    syncDistractionAnalysis();
 
 
     /*
-        只分析新的攝影機畫面
+        重新投入
     */
 
-    if (
-        camera.currentTime !==
-        lastVideoTime
-    ) {
+    syncReengagementAnalysis();
 
-        lastVideoTime =
-            camera.currentTime;
-
-
-        const results =
-            faceLandmarker.detectForVideo(
-
-                camera,
-
-                performance.now()
-
-            );
-
-
-        /* =============================================
-           有偵測到臉
-        ============================================= */
-
-        if (
-            results.faceLandmarks &&
-            results.faceLandmarks.length > 0
-        ) {
-
-            if (faceStatus) {
-
-                faceStatus.textContent =
-                    "👤 已偵測到臉";
-
-            }
-
-
-            /*
-                取得第一張臉的特徵點
-            */
-
-            const landmarks =
-                results.faceLandmarks[0];
-
-
-            /*
-                判斷頭部方向
-            */
-
-            const direction =
-                getHeadDirection(
-                    landmarks
-                );
-
-            currentHeadDirection =
-                 direction;
-
-            /*
-                更新畫面上的方向
-            */
-
-            if (headDirectionStatus) {
-
-                if (
-                    direction ===
-                    "CENTER"
-                ) {
-
-                    headDirectionStatus.textContent =
-                        "👀 頭部方向：中央";
-
-                }
-
-                else if (
-                    direction ===
-                    "LEFT"
-                ) {
-
-                    headDirectionStatus.textContent =
-                        "👀 頭部方向：左";
-
-                }
-
-                else if (
-                    direction ===
-                    "RIGHT"
-                ) {
-
-                    headDirectionStatus.textContent =
-                        "👀 頭部方向：右";
-
-                }
-
-                else if (
-                    direction ===
-                    "UP"
-                ) {
-
-                    headDirectionStatus.textContent =
-                        "👀 頭部方向：上";
-
-                }
-
-                else if (
-                    direction ===
-                    "DOWN"
-                ) {
-
-                    headDirectionStatus.textContent =
-                        "👀 頭部方向：下";
-
-                }
-
-                else {
-
-                    headDirectionStatus.textContent =
-                        "👀 頭部方向：未偵測";
-
-                }
-
-            }
-
-        }
-
-
-        /* =============================================
-           沒有偵測到臉
-        ============================================= */
-
-        else {
-
-    currentHeadDirection =
-        "UNKNOWN";
-
-
-    if (faceStatus) {
-
-                faceStatus.textContent =
-                    "👤 未偵測到臉";
-
-            }
-
-
-            if (headDirectionStatus) {
-
-                headDirectionStatus.textContent =
-                    "👀 頭部方向：未偵測";
-
-            }
-
-        }
-
-    }
-
-
-/*
-    更新持續注意時間
-*/
-
-updateAttentionTime();
-
-
-/*
-    更新分心事件
-*/
-
-updateDistraction();
-
-
-/*
-    更新視覺方向時間
-*/
-
-updateHeadDirectionTime();
-
-
-/*
-    記錄專注歷程
-*/
-
-recordAttentionTimeline();
-
-
-/*
-    每 1 秒同步一次故事互動資料
-*/
-
-const now =
-    performance.now();
-
-if (
-    now -
-    lastStoryDataUpdateTime >=
-    1000
-) {
 
     /*
-        同步故事互動資料
+        故事互動
     */
 
     updateStoryInteractionData();
 
 
     /*
-        保存目前完整分析資料
+        保存
     */
 
     saveAttentionAnalysis();
 
+}
+
+
+/* =========================================================
+   眼睛專注分析循環
+========================================================= */
+
+function startAttentionAnalysisLoop() {
+
+    /*
+        防止重複啟動
+    */
+
+    if (
+        attentionAnalysisFrame !==
+        null
+    ) {
+
+        cancelAnimationFrame(
+            attentionAnalysisFrame
+        );
+
+
+        attentionAnalysisFrame =
+            null;
+
+    }
+
+
+    /*
+        初始化
+    */
+
+    attentionStartTime =
+        null;
+
+
+    lastAttentionUpdateTime =
+        null;
+
+
+    lastHeadDirectionUpdateTime =
+        null;
+
+
+    lastTimelineRecordTime =
+        0;
+
 
     lastStoryDataUpdateTime =
-        now;
+        performance.now();
+
+
+    console.log(
+        "FocusTale：眼睛專注資料分析開始"
+    );
+
+
+    if (attentionStatus) {
+
+        attentionStatus.textContent =
+            "🟢 眼睛專注偵測中";
+
+    }
+
+
+    /* =====================================================
+       分析循環
+    ===================================================== */
+
+    function analyze() {
+
+        /*
+            ① 從 app.js 取得最新視線
+        */
+
+        syncEyeTrackingData();
+
+
+        /*
+            ② 專注時間
+        */
+
+        updateAttentionTime();
+
+
+        /*
+            ③ 分心
+        */
+
+        updateDistraction();
+
+
+        /*
+            ④ 視線方向時間
+        */
+
+        updateHeadDirectionTime();
+
+
+        /*
+            ⑤ Timeline
+        */
+
+        recordAttentionTimeline();
+
+
+        /*
+            ⑥ 每 1 秒保存一次
+        */
+
+        const now =
+            performance.now();
+
+
+        if (
+            now -
+            lastStoryDataUpdateTime >=
+            DATA_SAVE_INTERVAL
+        ) {
+
+            saveCurrentAnalysis();
+
+
+            lastStoryDataUpdateTime =
+                now;
+
+        }
+
+
+        /*
+            下一幀
+        */
+
+        attentionAnalysisFrame =
+            requestAnimationFrame(
+                analyze
+            );
+
+    }
+
+
+    analyze();
 
 }
 
 
-/*
-    下一個畫面繼續偵測
-*/
+/* =========================================================
+   頁面載入後啟動分析
 
-requestAnimationFrame(
-    detectFace
-);
+   注意：
+   這裡不啟動 MediaPipe。
 
-}
-
-
-/* ---------------------------------------------------------
-   啟動 MediaPipe
-
-   app.js 已經負責開攝影機，
-   所以這裡稍微等待攝影機準備。
---------------------------------------------------------- */
+   MediaPipe 已經由 app.js 負責。
+========================================================= */
 
 window.addEventListener(
 
@@ -1477,67 +1672,101 @@ window.addEventListener(
 
     function () {
 
-        initializeFaceDetection();
+        startAttentionAnalysisLoop();
 
     }
 
 );
 
+
 /* =========================================================
-   離開故事頁面前，保存最後一次專注資料
+   離開故事頁前
+   保存最後一次完整資料
 ========================================================= */
 
-let finalAttentionDataSaved = false;
+let finalAttentionDataSaved =
+    false;
+
 
 function saveFinalAttentionData() {
 
     /*
-        避免 pagehide 重複執行
+        防止 pagehide 重複執行
     */
-    if (finalAttentionDataSaved) {
+
+    if (
+        finalAttentionDataSaved
+    ) {
+
         return;
+
     }
 
-    finalAttentionDataSaved = true;
+
+    finalAttentionDataSaved =
+        true;
 
 
     /*
-        如果專注偵測還沒開始，
-        就直接保存目前已有的資料
+        取得最後一次眼睛視線
     */
-    if (attentionStartTime === null) {
+
+    syncEyeTrackingData();
+
+
+    /*
+        如果分析根本還沒開始，
+        至少保存故事互動資料。
+    */
+
+    if (
+        attentionStartTime ===
+        null
+    ) {
 
         updateStoryInteractionData();
 
+
         saveAttentionAnalysis();
 
+
         return;
+
     }
 
 
     /*
-        補上離開前最後一段專注時間
+        補最後一段專注時間
     */
+
     updateAttentionTime();
 
 
     /*
-        補上最後一段頭部方向時間
+        補最後一段視線方向時間
     */
+
     updateHeadDirectionTime();
 
 
     /*
-        最後再同步一次故事互動資料
+        注意：
+
+        這裡不直接呼叫 updateDistraction()
+        來結束事件。
+
+        如果使用者離開頁面時仍在分心，
+        我們另外建立 unfinishedEvent。
     */
-    updateStoryInteractionData();
 
 
-    /*
-        補最後一筆專注歷程
-    */
     const now =
         performance.now();
+
+
+    /* =====================================================
+       最後 Timeline
+    ===================================================== */
 
     const elapsedTime =
         (
@@ -1566,13 +1795,33 @@ function saveFinalAttentionData() {
     });
 
 
+    /* =====================================================
+       保存分心事件
+    ===================================================== */
+
+    behaviorAnalysis.distraction.count =
+        distractionCount;
+
+
     /*
-        如果離開時正在正式分心，
-        把尚未結束的這次分心也保存下來
+        先複製所有已完成事件
     */
+
+    const finalDistractionEvents =
+        [
+            ...distractionEvents
+        ];
+
+
+    /*
+        如果離開時仍然正在分心，
+        加一筆 unfinished。
+    */
+
     if (
         isDistracted &&
-        distractionStartTime !== null
+        distractionStartTime !==
+        null
     ) {
 
         const duration =
@@ -1582,7 +1831,7 @@ function saveFinalAttentionData() {
             ) / 1000;
 
 
-        const unfinishedEvent = {
+        finalDistractionEvents.push({
 
             startTime:
                 (
@@ -1596,77 +1845,68 @@ function saveFinalAttentionData() {
             unfinished:
                 true
 
-        };
+        });
+
+    }
 
 
-        /*
-            不直接修改 distractionEvents，
-            避免影響原本正在執行的偵測。
-        */
-        behaviorAnalysis.distraction.events = [
-            ...distractionEvents,
-            unfinishedEvent
+    behaviorAnalysis.distraction.events =
+        finalDistractionEvents;
+
+
+    behaviorAnalysis.distraction.totalTime =
+        finalDistractionEvents.reduce(
+
+            function (
+                total,
+                event
+            ) {
+
+                return (
+                    total +
+                    event.duration
+                );
+
+            },
+
+            0
+
+        );
+
+
+    /* =====================================================
+       保存重新投入
+    ===================================================== */
+
+    syncReengagementAnalysis();
+
+
+    /* =====================================================
+       保存故事互動
+    ===================================================== */
+
+    updateStoryInteractionData();
+
+
+    /* =====================================================
+       保存 Timeline
+    ===================================================== */
+
+    behaviorAnalysis.timeline =
+        [
+            ...attentionTimeline
         ];
 
 
-        behaviorAnalysis.distraction.totalTime =
-            behaviorAnalysis.distraction.events.reduce(
+    /* =====================================================
+       最後保存
+    ===================================================== */
 
-                function (total, event) {
-
-                    return (
-                        total +
-                        event.duration
-                    );
-
-                },
-
-                0
-
-            );
-
-    }
-
-    else {
-
-        behaviorAnalysis.distraction.events =
-            [...distractionEvents];
-
-
-        behaviorAnalysis.distraction.totalTime =
-            distractionEvents.reduce(
-
-                function (total, event) {
-
-                    return (
-                        total +
-                        event.duration
-                    );
-
-                },
-
-                0
-
-            );
-
-    }
-
-
-    /*
-        確保最後的分心次數正確
-    */
-    behaviorAnalysis.distraction.count =
-        distractionCount;
-
-
-    /*
-        保存最後完整資料
-    */
     saveAttentionAnalysis();
 
 
     console.log(
-        "FocusTale：離開故事頁面前，最後資料已保存",
+        "FocusTale：離開故事頁面前，眼睛視線資料已保存",
         behaviorAnalysis
     );
 
@@ -1674,14 +1914,20 @@ function saveFinalAttentionData() {
 
 
 /* =========================================================
-   頁面即將離開
+   pagehide
+
+   切換到 report.html 或離開故事頁時，
+   保存最後資料。
 ========================================================= */
 
 window.addEventListener(
+
     "pagehide",
+
     function () {
 
         saveFinalAttentionData();
 
     }
+
 );
