@@ -864,8 +864,41 @@ button {
    21. 隱藏
 ========================================================= */
 
+/* =========================================================
+   專注偵測後台面板
+   僅顯示於右下角
+========================================================= */
+
 #attentionDebug {
     display: block !important;
+
+    position: fixed !important;
+
+    right: 0 !important;
+    bottom: 0 !important;
+    top: auto !important;
+    left: auto !important;
+
+    width: auto !important;
+    height: auto !important;
+
+    margin: 0 !important;
+
+    padding: 14px 18px !important;
+
+    background: rgba(255, 255, 255, 0.88) !important;
+
+    border: none !important;
+    border-radius: 18px 0 0 0 !important;
+
+    box-shadow: none !important;
+
+    z-index: 9999 !important;
+
+    font-size: 18px !important;
+    line-height: 1.7 !important;
+
+    color: #5f514b !important;
 }
 
 
