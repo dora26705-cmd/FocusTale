@@ -1873,9 +1873,7 @@ button {
 }
 
 
-/* 開始尋找按鈕 */
-
-
+/* 開始尋找按鈕：預設隱藏 */
 .search-start-button {
     position: absolute !important;
 
@@ -1886,9 +1884,9 @@ button {
 
     z-index: 999999 !important;
 
-    display: block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
 
     width: auto !important;
     height: auto !important;
@@ -1909,18 +1907,18 @@ button {
 
     cursor: pointer !important;
 
-    pointer-events: auto !important;
-
     box-shadow:
         0 8px 25px rgba(0, 0, 0, 0.25) !important;
 }
 
 
-/* 有沒有 show 都保持顯示 */
+/* JS 加上 show 時才顯示 */
 .search-start-button.show {
     display: block !important;
     visibility: visible !important;
     opacity: 1 !important;
+
+    pointer-events: auto !important;
 
     transform:
         translate(-50%, -50%) !important;
