@@ -1929,3 +1929,2329 @@ button {
 .search-fog.show {
     opacity: 1;
 }
+
+
+
+/* =========================================================
+   專注偵測：開發測試狀態
+========================================================= */
+
+.attention-debug {
+
+    position: fixed;
+
+    right: 20px;
+    bottom: 20px;
+
+    z-index: 10000;
+
+    padding: 12px 18px;
+
+    background: rgba(255, 255, 255, 0.92);
+
+    border-radius: 16px;
+
+    box-shadow:
+        0 4px 16px rgba(0, 0, 0, 0.18);
+
+    font-size: 15px;
+
+    line-height: 1.8;
+
+    color: #4f4035;
+
+    pointer-events: none;
+}
+
+/* =========================================================
+   FocusTale
+   專注分析報告
+========================================================= */
+
+.attention-chart-container {
+    position: relative;
+    width: 100%;
+    height: 360px;
+}
+
+/* =========================================================
+   FocusTale
+   報告頁－本次閱讀摘要
+========================================================= */
+
+.report-summary-cards {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin: 24px 0;
+}
+
+
+.summary-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    padding: 22px 24px;
+
+    background: rgba(255, 255, 255, 0.92);
+
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    border-radius: 22px;
+
+    box-shadow:
+        0 8px 24px rgba(65, 80, 110, 0.10);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+.summary-card:hover {
+    transform: translateY(-3px);
+
+    box-shadow:
+        0 12px 28px rgba(65, 80, 110, 0.15);
+}
+
+
+.summary-icon {
+    width: 54px;
+    height: 54px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 28px;
+
+    background: #fff7df;
+
+    border-radius: 16px;
+}
+
+
+.summary-content {
+    min-width: 0;
+}
+
+
+.summary-label {
+    margin-bottom: 6px;
+
+    color: #777;
+
+    font-size: 14px;
+    font-weight: 600;
+}
+
+
+.summary-value {
+    color: #40382f;
+
+    font-size: 24px;
+    font-weight: 800;
+
+    white-space: nowrap;
+}
+
+
+/* ---------------------------------------------------------
+   平板
+--------------------------------------------------------- */
+
+@media (max-width: 1000px) {
+
+    .report-summary-cards {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+}
+
+
+/* ---------------------------------------------------------
+   手機
+--------------------------------------------------------- */
+
+@media (max-width: 600px) {
+
+    .report-summary-cards {
+        grid-template-columns:
+            1fr;
+    }
+
+}
+
+/* =========================================================
+   報告頁四格統計卡片 Final 風格
+========================================================= */
+
+.report-summary-cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+
+    width: 100%;
+    margin: 30px 0;
+}
+
+
+/* 四張卡片共同設定 */
+
+.summary-card {
+    min-height: 190px;
+
+    display: flex;
+    align-items: center;
+
+    padding: 30px 45px;
+
+    border-radius: 35px;
+
+    border: none;
+
+    box-shadow:
+        0 12px 30px rgba(70, 70, 90, 0.12);
+}
+
+
+/* 第一張：閱讀時間 */
+
+.summary-card:nth-child(1) {
+    background:
+        linear-gradient(
+            135deg,
+            #fff8e7,
+            #ffe5a6
+        );
+}
+
+
+/* 第二張：專注比例 */
+
+.summary-card:nth-child(2) {
+    background:
+        linear-gradient(
+            135deg,
+            #fff2f7,
+            #ffd5e5
+        );
+}
+
+
+/* 第三張：分心次數 */
+
+.summary-card:nth-child(3) {
+    background:
+        linear-gradient(
+            135deg,
+            #eef7ff,
+            #cfe5ff
+        );
+}
+
+
+/* 第四張：平均重新投入 */
+
+.summary-card:nth-child(4) {
+    background:
+        linear-gradient(
+            135deg,
+            #f0fff5,
+            #d4f3df
+        );
+}
+
+
+/* 左邊圖示 */
+
+.summary-icon {
+    width: 110px;
+    height: 110px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    margin-right: 30px;
+
+    font-size: 65px;
+
+    background: transparent;
+}
+
+
+/* 右邊文字 */
+
+.summary-content {
+    flex: 1;
+}
+
+
+/* 閱讀時間、專注比例... */
+
+.summary-label {
+    margin-bottom: 12px;
+
+    font-size: 25px;
+    font-weight: 800;
+
+    color: #554b43;
+}
+
+
+/* 2分3秒、40.4%... */
+
+.summary-value {
+    font-size: 48px;
+    font-weight: 900;
+
+    color: #40382f;
+
+    line-height: 1.1;
+}
+
+
+/* 平板 */
+
+@media (max-width: 900px) {
+
+    .report-summary-cards {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+
+/* =========================================================
+   FocusTale
+   六大行為分析卡片
+========================================================= */
+
+.behavior-analysis-section {
+    width: 100%;
+    margin-top: 40px;
+    margin-bottom: 50px;
+}
+
+
+/* 標題區 */
+
+.behavior-analysis-header {
+    margin-bottom: 24px;
+}
+
+.behavior-analysis-header h2 {
+    margin: 0 0 8px;
+
+    font-size: 28px;
+    font-weight: 800;
+
+    color: #40382f;
+}
+
+.behavior-analysis-header p {
+    margin: 0;
+
+    font-size: 15px;
+
+    color: #777;
+}
+
+
+/* =========================================================
+   六張卡片排列
+========================================================= */
+
+.behavior-analysis-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 22px;
+}
+
+
+/* =========================================================
+   單張卡片
+========================================================= */
+
+.behavior-card {
+    min-height: 220px;
+
+    padding: 28px;
+
+    border: none;
+    border-radius: 30px;
+
+    box-shadow:
+        0 10px 28px rgba(70, 70, 90, 0.10);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+.behavior-card:hover {
+    transform:
+        translateY(-4px);
+
+    box-shadow:
+        0 14px 32px rgba(70, 70, 90, 0.15);
+}
+
+
+/* =========================================================
+   六張卡片不同背景
+========================================================= */
+
+/* ① 持續注意 */
+
+.behavior-card:nth-child(1) {
+    background:
+        linear-gradient(
+            135deg,
+            #fff9e8,
+            #ffedbd
+        );
+}
+
+
+/* ② 分心事件 */
+
+.behavior-card:nth-child(2) {
+    background:
+        linear-gradient(
+            135deg,
+            #fff1f6,
+            #ffd9e7
+        );
+}
+
+
+/* ③ 重新投入 */
+
+.behavior-card:nth-child(3) {
+    background:
+        linear-gradient(
+            135deg,
+            #eef7ff,
+            #d5e9ff
+        );
+}
+
+
+/* ④ 視覺方向 */
+
+.behavior-card:nth-child(4) {
+    background:
+        linear-gradient(
+            135deg,
+            #f0fff5,
+            #d9f4e3
+        );
+}
+
+
+/* ⑤ 任務反應 */
+
+.behavior-card:nth-child(5) {
+    background:
+        linear-gradient(
+            135deg,
+            #f8f1ff,
+            #e9d9ff
+        );
+}
+
+
+/* ⑥ 故事理解 */
+
+.behavior-card:nth-child(6) {
+    background:
+        linear-gradient(
+            135deg,
+            #fff6ec,
+            #ffe0c2
+        );
+}
+
+
+/* =========================================================
+   卡片圖示
+========================================================= */
+
+.behavior-card-icon {
+    width: 58px;
+    height: 58px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-bottom: 18px;
+
+    font-size: 34px;
+
+    background:
+        rgba(255, 255, 255, 0.65);
+
+    border-radius: 18px;
+}
+
+
+/* =========================================================
+   卡片文字
+========================================================= */
+
+.behavior-card-content h3 {
+    margin:
+        0 0 12px;
+
+    font-size: 20px;
+    font-weight: 800;
+
+    color: #554b43;
+}
+
+
+.behavior-card-value {
+    margin-bottom: 14px;
+
+    font-size: 28px;
+    font-weight: 900;
+
+    line-height: 1.45;
+
+    color: #40382f;
+}
+
+
+.behavior-card-content p {
+    margin: 0;
+
+    font-size: 14px;
+
+    line-height: 1.6;
+
+    color: #746c65;
+}
+
+
+/* =========================================================
+   平板
+========================================================= */
+
+@media (max-width: 1000px) {
+
+    .behavior-analysis-grid {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+}
+
+
+/* =========================================================
+   手機
+========================================================= */
+
+@media (max-width: 600px) {
+
+    .behavior-analysis-grid {
+        grid-template-columns:
+            1fr;
+    }
+
+}
+
+
+/* =========================================================
+   長期閱讀趨勢
+========================================================= */
+
+.long-term-section {
+    position: relative;
+
+    width: 100%;
+    aspect-ratio: 1920 / 820;
+
+    background-image:
+        url("./assets/images/report-history-focus.png");
+
+    background-size: 100% 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    overflow: hidden;
+}
+
+
+/* =========================================================
+   三個切換按鈕
+   按鈕本身透明，只保留點擊功能
+========================================================= */
+
+.history-chart-tabs {
+    position: absolute;
+
+    left: 3%;
+    top: 28%;
+
+    width: 54%;
+    height: 12%;
+
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+
+    z-index: 5;
+}
+
+
+.history-tab {
+    width: 100%;
+    height: 100%;
+
+    border: none;
+    background: transparent;
+
+    color: transparent;
+
+    cursor: pointer;
+}
+
+
+/* 不需要程式產生的標題 */
+
+#historyChartTitle {
+    display: none !important;
+}
+
+
+/* =========================================================
+   Chart.js 圖表位置
+========================================================= */
+
+.long-term-chart-container {
+    position: absolute;
+
+    /* 圖片裡藍色大框的位置 */
+    left: 6%;
+    top: 52%;
+
+    width: 88%;
+    height: 40%;
+
+    z-index: 2;
+
+    background: transparent;
+}
+
+
+.long-term-chart-container canvas {
+    width: 100% !important;
+    height: 100% !important;
+
+    background: transparent !important;
+}
+/* =========================================================
+   長期趨勢切換按鈕
+========================================================= */
+
+.history-chart-tabs {
+    display: flex;
+    flex-wrap: wrap;
+
+    gap: 12px;
+
+    margin-bottom: 26px;
+}
+
+
+.history-tab {
+    padding: 12px 20px;
+
+    border: none;
+    border-radius: 18px;
+
+    background: #f4f4f4;
+
+    color: #625b55;
+
+    font-size: 16px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.2s ease,
+        background 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+.history-tab:hover {
+    transform: translateY(-2px);
+
+    background: #fff3d5;
+}
+
+
+.history-tab.active {
+    background: #ffe7a8;
+
+    color: #604619;
+
+    box-shadow:
+        0 5px 14px rgba(90, 70, 30, 0.12);
+}
+
+
+/* 手機 */
+
+@media (max-width: 600px) {
+
+    .history-chart-tabs {
+        display: grid;
+
+        grid-template-columns: 1fr;
+    }
+
+
+    .history-tab {
+        width: 100%;
+    }
+
+}
+
+/* =========================================================
+   FocusTale
+   報告頁－回首頁按鈕
+========================================================= */
+
+.report-home-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    padding: 12px 20px;
+
+    background: #ffffff;
+
+    border: 2px solid #f1dfbd;
+    border-radius: 999px;
+
+    color: #5b4a3c;
+
+    font-size: 16px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 5px 16px rgba(90, 70, 50, 0.10);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+
+.report-home-button:hover {
+    transform: translateY(-2px);
+
+    background: #fff8e8;
+
+    box-shadow:
+        0 8px 20px rgba(90, 70, 50, 0.15);
+}
+
+
+.report-home-button:active {
+    transform: translateY(0);
+}
+
+
+/* =========================================================
+   FocusTale
+   報告頁頂部區域
+========================================================= */
+
+.report-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 30px;
+
+    margin: 24px 0 36px;
+    padding: 26px 32px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(255, 250, 240, 0.96),
+            rgba(255, 245, 224, 0.92)
+        );
+
+    border: 2px solid rgba(230, 200, 155, 0.45);
+    border-radius: 30px;
+
+    box-shadow:
+        0 10px 30px rgba(100, 75, 45, 0.10);
+}
+
+
+/* 標題 */
+
+.report-header h1 {
+    margin: 0 0 8px;
+
+    font-size: 34px;
+    font-weight: 800;
+
+    color: #4f4035;
+}
+
+
+/* 副標題 */
+
+.report-header p {
+    margin: 0;
+
+    font-size: 17px;
+    line-height: 1.6;
+
+    color: #817267;
+}
+
+
+/* =========================================================
+   回首頁按鈕
+========================================================= */
+
+.report-home-button {
+    flex-shrink: 0;
+
+    padding: 14px 24px;
+
+    border: 2px solid rgba(190, 165, 135, 0.35);
+    border-radius: 999px;
+
+    background:
+        rgba(255, 255, 255, 0.88);
+
+    color: #59493e;
+
+    font-size: 16px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 5px 15px rgba(80, 60, 40, 0.08);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+
+.report-home-button:hover {
+    transform: translateY(-2px);
+
+    background: #ffffff;
+
+    box-shadow:
+        0 8px 20px rgba(80, 60, 40, 0.13);
+}
+
+
+.report-home-button:active {
+    transform: translateY(0);
+}
+
+
+/* =========================================================
+   小螢幕
+========================================================= */
+
+@media (max-width: 700px) {
+
+    .report-header {
+        align-items: flex-start;
+        flex-direction: column;
+
+        padding: 22px;
+    }
+
+
+    .report-header h1 {
+        font-size: 28px;
+    }
+
+
+    .report-home-button {
+        width: 100%;
+    }
+
+}
+
+/* =========================================================
+   FocusTale 新首頁
+========================================================= */
+
+.home-body {
+    margin: 0;
+
+    width: 100vw;
+    height: 100vh;
+
+    overflow: hidden;
+
+    background: #f6d6a3;
+}
+
+
+/* =========================================================
+   首頁完整畫面
+========================================================= */
+
+.home {
+    position: relative;
+
+    width: 100vw;
+    height: 100vh;
+
+    background-image:
+        url("./assets/images/home.png");
+
+    background-repeat:
+        no-repeat;
+
+    background-position:
+        center center;
+
+    background-size:
+        contain;
+
+    background-color:
+        #f6d6a3;
+}
+
+
+/* =========================================================
+   透明點擊區
+========================================================= */
+
+.home-hotspot {
+    position: absolute;
+
+    padding: 0;
+
+    border: none;
+
+    background: transparent;
+
+    cursor: pointer;
+
+    z-index: 10;
+}
+
+
+/* =========================================================
+   開始故事
+========================================================= */
+
+.home-story-hotspot {
+    left: 60.5%;
+    top: 37.5%;
+
+    width: 33%;
+    height: 16%;
+}
+
+
+.home-report-hotspot {
+    left: 61.5%;
+    top: 58%;
+
+    width: 31%;
+    height: 13%;
+
+}
+
+/* =========================================================
+   =========================================================
+   FocusTale
+   新版閱讀專注分析報告
+   =========================================================
+   ========================================================= */
+
+
+/* =========================================================
+   報告頁基本設定
+========================================================= */
+
+.report-body {
+    margin: 0;
+
+    width: 100%;
+
+    background:
+        #fffaf2;
+
+    overflow-x:
+        hidden;
+}
+
+
+.report-page {
+    width: 100%;
+
+    max-width:
+        none;
+
+    margin: 0;
+
+    padding: 0;
+}
+
+
+
+/* =========================================================
+   ① 閱讀專注分析
+
+   使用：
+   assets/images/report-summary.png
+========================================================= */
+
+.report-summary-section {
+    position: relative;
+
+    width: 100%;
+
+    aspect-ratio:
+        1920 / 768;
+
+    margin: 0;
+
+    padding: 0;
+
+    background-image:
+        url("assets/images/report-summary.png");
+
+    background-repeat:
+        no-repeat;
+
+    background-position:
+        center;
+
+    background-size:
+        100% 100%;
+}
+
+
+
+/* =========================================================
+   回首頁
+
+   圖片裡已經畫好按鈕，
+   所以真正 HTML 按鈕透明覆蓋在上面
+========================================================= */
+
+.report-home-button {
+    position: absolute;
+
+    top: 11%;
+
+    right: 3%;
+
+    width: 15%;
+
+    height: 13%;
+
+
+    padding: 0;
+
+    margin: 0;
+
+
+    border:
+        none;
+
+    border-radius:
+        999px;
+
+
+    background:
+        transparent;
+
+
+    color:
+        transparent;
+
+
+    font-size:
+        0;
+
+
+    cursor:
+        pointer;
+
+
+    z-index:
+        20;
+}
+
+
+
+/* 滑鼠移到首頁按鈕 */
+
+.report-home-button:hover {
+    background:
+        rgba(
+            255,
+            255,
+            255,
+            0.12
+        );
+}
+
+
+
+/* =========================================================
+   四個摘要數據位置
+========================================================= */
+
+.report-summary-values {
+    position: absolute;
+
+    left: 2.7%;
+
+    right: 2.7%;
+
+    top: 32%;
+
+    bottom: 4%;
+
+
+    display: grid;
+
+
+    grid-template-columns:
+        repeat(
+            2,
+            1fr
+        );
+
+
+    grid-template-rows:
+        repeat(
+            2,
+            1fr
+        );
+
+
+    column-gap:
+        2.5%;
+
+
+    row-gap:
+        5%;
+}
+
+
+
+/* 每一格 */
+
+.summary-value-position {
+    position: relative;
+}
+
+
+
+/* =========================================================
+   摘要數字
+========================================================= */
+
+.summary-value-position
+.summary-value {
+
+    position: absolute;
+
+
+    /*
+        圖片中：
+
+        左邊是兔兔，
+        右邊才是數值框
+
+        所以數值往右放
+    */
+
+    left: 42%;
+
+    top: 53%;
+
+
+    transform:
+        translateY(-50%);
+
+
+    margin: 0;
+
+
+    color:
+        #4d3428;
+
+
+    font-size:
+        clamp(
+            28px,
+            3.2vw,
+            62px
+        );
+
+
+    font-weight:
+        800;
+
+
+    line-height:
+        1;
+
+
+    white-space:
+        nowrap;
+}
+
+
+
+/* =========================================================
+   ② 專注時間趨勢
+
+   使用：
+   report-attention-chart.png
+========================================================= */
+
+.report-attention-section {
+    position: relative;
+
+    width: 100%;
+
+
+    aspect-ratio:
+        1920 / 800;
+
+
+    margin: 0;
+
+    padding: 0;
+
+
+    background-image:
+        url("assets/images/report-attention-chart.png");
+
+
+    background-repeat:
+        no-repeat;
+
+
+    background-position:
+        center;
+
+
+    background-size:
+        100% 100%;
+}
+
+
+
+/* =========================================================
+   專注時間趨勢真正圖表位置
+========================================================= */
+
+.attention-chart-container {
+    position: absolute;
+
+
+    left: 6%;
+
+    right: 5%;
+
+
+    top: 40%;
+
+    bottom: 8%;
+
+
+    width:
+        auto;
+
+    height:
+        auto;
+
+
+    padding:
+        18px 24px;
+
+
+    box-sizing:
+        border-box;
+
+
+    border-radius:
+        30px;
+
+
+    background:
+        rgba(
+            255,
+            255,
+            255,
+            0.35
+        );
+}
+
+
+
+/* Chart.js */
+
+.attention-chart-container canvas {
+    width:
+        100% !important;
+
+    height:
+        100% !important;
+}
+
+
+
+/* =========================================================
+   ③ 六大行為分析
+
+   使用：
+   report-behavior.png
+========================================================= */
+
+.behavior-analysis-section {
+    position: relative;
+
+
+    width:
+        100%;
+
+
+    aspect-ratio:
+        1920 / 860;
+
+
+    margin:
+        0;
+
+
+    padding:
+        0;
+
+
+    background-image:
+        url("assets/images/report-behavior.png");
+
+
+    background-repeat:
+        no-repeat;
+
+
+    background-position:
+        center;
+
+
+    background-size:
+        100% 100%;
+}
+
+
+
+/* =========================================================
+   六大行為卡片定位
+========================================================= */
+
+.behavior-analysis-grid {
+    position: absolute;
+
+
+    left:
+        1%;
+
+    right:
+        1%;
+
+
+    top:
+        30%;
+
+    bottom:
+        2%;
+
+
+    display:
+        grid;
+
+
+    grid-template-columns:
+        repeat(
+            3,
+            1fr
+        );
+
+
+    grid-template-rows:
+        repeat(
+            2,
+            1fr
+        );
+
+
+    column-gap:
+        1%;
+
+
+    row-gap:
+        2%;
+}
+
+
+
+/* =========================================================
+   六大行為單一卡片
+
+   背景圖片已經有卡片，
+   HTML 只負責顯示數值
+========================================================= */
+
+.behavior-card {
+    position:
+        relative;
+
+
+    margin:
+        0;
+
+
+    padding:
+        0;
+
+
+    background:
+        transparent !important;
+
+
+    border:
+        none !important;
+
+
+    border-radius:
+        0;
+
+
+    box-shadow:
+        none !important;
+}
+
+
+
+/* =========================================================
+   六大行為數值
+========================================================= */
+
+.behavior-card-value {
+    position:
+        absolute;
+
+
+    /*
+        每張圖片卡片：
+
+        左側兔兔
+        右側白色數據框
+    */
+
+    left:
+        47%;
+
+
+    top:
+        49%;
+
+
+    transform:
+        translateY(-50%);
+
+
+    width:
+        48%;
+
+
+    color:
+        #493126;
+
+
+    font-size:
+        clamp(
+            20px,
+            2vw,
+            38px
+        );
+
+
+    font-weight:
+        800;
+
+
+    line-height:
+        1.45;
+
+
+    white-space:
+        nowrap;
+}
+
+
+
+/* =========================================================
+   第五張：任務反應
+
+   兩行文字，
+   所以字稍微縮小
+========================================================= */
+
+.behavior-card:nth-child(5)
+.behavior-card-value {
+
+    font-size:
+        clamp(
+            16px,
+            1.5vw,
+            29px
+        );
+
+
+    line-height:
+        1.55;
+}
+
+
+
+
+/* =========================================================
+   ④ 長期閱讀趨勢
+
+   使用：
+   report-history.png
+========================================================= */
+
+.long-term-section {
+    position:
+        relative;
+
+
+    width:
+        100%;
+
+
+    aspect-ratio:
+        1920 / 820;
+
+
+    margin:
+        0;
+
+
+    padding:
+        0;
+
+
+    background-image:
+        url("assets/images/report-history.png");
+
+
+    background-repeat:
+        no-repeat;
+
+
+    background-position:
+        center;
+
+
+    background-size:
+        100% 100%;
+}
+
+
+
+/* =========================================================
+   長期趨勢三個切換按鈕
+
+   圖片已經畫好：
+   專注比例
+   分心次數
+   重新投入
+
+   所以真正按鈕透明覆蓋
+========================================================= */
+
+.history-chart-tabs {
+    position:
+        absolute;
+
+
+    top:
+        27%;
+
+
+    left:
+        3%;
+
+
+    width:
+        54%;
+
+
+    height:
+        11%;
+
+
+    display:
+        grid;
+
+
+    grid-template-columns:
+        repeat(
+            3,
+            1fr
+        );
+
+
+    gap:
+        1%;
+
+
+    margin:
+        0;
+
+
+    z-index:
+        20;
+}
+
+
+
+/* =========================================================
+   透明按鈕
+========================================================= */
+
+.history-tab {
+    width:
+        100%;
+
+
+    height:
+        100%;
+
+
+    margin:
+        0;
+
+
+    padding:
+        0;
+
+
+    border:
+        none !important;
+
+
+    border-radius:
+        999px;
+
+
+    background:
+        transparent !important;
+
+
+    box-shadow:
+        none !important;
+
+
+    color:
+        transparent !important;
+
+
+    font-size:
+        0;
+
+
+    cursor:
+        pointer;
+}
+
+
+
+/* 滑鼠移入 */
+
+.history-tab:hover {
+    background:
+        rgba(
+            255,
+            255,
+            255,
+            0.10
+        ) !important;
+}
+
+
+
+/* active */
+
+.history-tab.active {
+    background:
+        rgba(
+            255,
+            255,
+            255,
+            0.08
+        ) !important;
+}
+
+
+
+/* =========================================================
+   長期趨勢動態標題
+========================================================= */
+
+#historyChartTitle {
+    position:
+        absolute;
+
+
+    left:
+        6%;
+
+
+    top:
+        42%;
+
+
+    margin:
+        0;
+
+
+    color:
+        #513528;
+
+
+    font-size:
+        clamp(
+            20px,
+            2vw,
+            38px
+        );
+
+
+    font-weight:
+        800;
+
+
+    z-index:
+        5;
+}
+
+
+
+/* =========================================================
+   長期趨勢圖
+========================================================= */
+
+.long-term-chart-container {
+    position:
+        absolute;
+
+
+    left:
+        6%;
+
+
+    right:
+        5%;
+
+
+    top:
+        50%;
+
+
+    bottom:
+        5%;
+
+
+    width:
+        auto;
+
+
+    height:
+        auto;
+
+
+    padding:
+        15px 22px;
+
+
+    box-sizing:
+        border-box;
+
+
+    border-radius:
+        30px;
+
+
+    background:
+        rgba(
+            255,
+            255,
+            255,
+            0.35
+        );
+}
+
+
+
+/* Chart.js */
+
+.long-term-chart-container canvas {
+    width:
+        100% !important;
+
+    height:
+        100% !important;
+}
+
+
+
+/* =========================================================
+   平板
+========================================================= */
+
+@media (
+    max-width: 900px
+) {
+
+    .summary-value-position
+    .summary-value {
+
+        font-size:
+            clamp(
+                20px,
+                3.3vw,
+                38px
+            );
+
+    }
+
+
+    .behavior-card-value {
+
+        font-size:
+            clamp(
+                15px,
+                2vw,
+                25px
+            );
+
+    }
+
+
+    .behavior-card:nth-child(5)
+    .behavior-card-value {
+
+        font-size:
+            clamp(
+                12px,
+                1.5vw,
+                20px
+            );
+
+    }
+
+
+    .behavior-card:nth-child(6)
+    .behavior-card-value {
+
+        font-size:
+            clamp(
+                11px,
+                1.3vw,
+                18px
+            );
+
+    }
+
+}
+
+
+
+/* =========================================================
+   手機
+
+   保持整張設計圖比例，
+   避免圖片和動態數值分離
+========================================================= */
+
+@media (
+    max-width: 600px
+) {
+
+    .report-page {
+
+        min-width:
+            600px;
+
+    }
+
+
+    .report-body {
+
+        overflow-x:
+            auto;
+
+    }
+
+}
+
+/* =========================================================
+   六大行為分析：數值精準定位
+========================================================= */
+
+.behavior-analysis-section {
+    position: relative;
+}
+
+.behavior-analysis-grid {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 30%;
+    bottom: 0;
+
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+
+    pointer-events: none;
+}
+
+.behavior-card {
+    position: relative;
+
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+
+    min-height: 0;
+}
+
+/* 圖示、標題、說明都已經畫在背景圖 */
+.behavior-card-icon,
+.behavior-card h3,
+.behavior-card p {
+    display: none !important;
+}
+
+/* 一般數值 */
+.behavior-card-value {
+    position: absolute;
+
+    left: 47%;
+    top: 47%;
+
+    width: 40%;
+
+    transform: translateY(-50%);
+
+    text-align: center;
+
+    font-size: clamp(24px, 2vw, 42px);
+    font-weight: 500;
+    line-height: 1.25;
+
+    color: #4b2c1f;
+}
+
+
+/* =========================================================
+   閱讀摘要－數字精準定位
+========================================================= */
+
+.report-summary-cards {
+    position: relative;
+}
+
+.summary-card {
+    position: relative;
+
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+
+    padding: 0 !important;
+}
+
+/* 背景圖已經有圖示與標題 */
+.summary-icon,
+.summary-label {
+    display: none !important;
+}
+
+
+/* 清除原本 summary-content 的位置 */
+.summary-content {
+    position: static !important;
+}
+
+
+/* =========================================================
+   閱讀專注分析－四個數字最終位置
+========================================================= */
+
+.report-summary-section .report-summary-values .summary-value-position {
+    position: relative;
+}
+
+.report-summary-section
+.report-summary-values
+.summary-value-position
+.summary-value {
+    position: absolute;
+
+    left: 42%;
+    top: 70%;
+
+    transform: translateY(-50%);
+
+    margin: 0;
+
+    color: #4d3428;
+
+    font-size: clamp(28px, 3.2vw, 62px);
+    font-weight: 500;
+
+    line-height: 1;
+    white-space: nowrap;
+}
+
+/* =========================================================
+   只調整下面兩格數值位置
+========================================================= */
+
+/* 左下：分心次數 */
+.summary-value-position:nth-child(3) .summary-value {
+    top: 60% !important;
+}
+
+/* 右下：平均重新投入 */
+.summary-value-position:nth-child(4) .summary-value {
+    top: 60% !important;
+}
+
+
+/* =========================================================
+   六大行為分析－動態數值精準定位
+========================================================= */
+
+/* 所有卡片 */
+.behavior-card {
+    position: relative;
+}
+
+/* 所有動態資料 */
+.behavior-card-value {
+    position: absolute !important;
+    margin: 0 !important;
+
+    color: #4b2c1f;
+    font-weight: 500;
+
+    transform: translate(-50%, -50%) !important;
+}
+
+
+/* =========================
+   ① 持續注意
+========================= */
+
+.behavior-card:nth-child(1) .behavior-card-value {
+    left: 70% !important;
+    top: 48% !important;
+
+    font-size: clamp(22px, 2.2vw, 42px);
+}
+
+
+/* =========================
+   ② 分心事件
+========================= */
+
+.behavior-card:nth-child(2) .behavior-card-value {
+    left: 63% !important;
+    top: 49% !important;
+
+    font-size: clamp(22px, 2.2vw, 42px);
+}
+
+
+/* =========================
+   ③ 重新投入
+========================= */
+
+.behavior-card:nth-child(3) .behavior-card-value {
+    left: 61% !important;
+    top: 49% !important;
+
+    font-size: clamp(22px, 2.2vw, 42px);
+}
+
+
+/* =========================
+   ④ 視覺方向
+========================= */
+
+.behavior-card:nth-child(4) .behavior-card-value {
+    left: 70% !important;
+    top: 38% !important;
+
+    font-size: clamp(22px, 2.2vw, 42px);
+}
+
+
+/* =========================
+   ⑤ 任務反應
+========================= */
+
+.behavior-card:nth-child(5) .behavior-card-value {
+    left: 73% !important;
+    top: 38% !important;
+
+    width: 43%;
+
+    font-size: clamp(14px, 1.45vw, 26px);
+    line-height: 1.8;
+
+    text-align: left;
+
+    transform: translate(-50%, -50%) !important;
+}
+
+
+/* =========================================================
+   第六張：故事理解
+========================================================= */
+
+.behavior-card:nth-child(6) #behaviorComprehension {
+    position: absolute !important;
+
+    left: 47% !important;
+    top: 25% !important;
+
+    width: 43% !important;
+    height: 50% !important;
+
+    transform: none !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    color: #4b2c1f !important;
+    font-size: clamp(14px, 1.25vw, 24px) !important;
+    font-weight: 500 !important;
+}
+
+
+/* 第一格：回答正確 / 回答錯誤 */
+
+#comprehensionResult {
+    position: absolute !important;
+
+    left: 8% !important;
+    top: -25% !important;
+
+    width: 100% !important;
+    height: 27% !important;
+
+    display: flex !important;
+    align-items: center !important;
+
+    padding-left: 10% !important;
+    box-sizing: border-box !important;
+
+    white-space: nowrap !important;
+}
+
+
+/* 第二格：選擇 */
+
+#comprehensionAnswer {
+    position: absolute !important;
+
+    left: 8% !important;
+    top: 15% !important;
+
+    width: 100% !important;
+    height: 27% !important;
+
+    display: flex !important;
+    align-items: center !important;
+
+    padding-left: 10% !important;
+    box-sizing: border-box !important;
+
+    white-space: nowrap !important;
+}
+
+
+/* 第三格：反應時間 */
+
+#comprehensionTime {
+    position: absolute !important;
+
+    left: -10% !important;
+    top: 55% !important;
+
+    width: 100% !important;
+    height: 27% !important;
+
+    display: flex !important;
+    align-items: center !important;
+
+    padding-left: 10% !important;
+    box-sizing: border-box !important;
+
+    white-space: nowrap !important;
+}
+
+
+/* =========================================================
+   移除長期閱讀趨勢多出來的小圖片
+========================================================= */
+
+.long-term-section > img {
+    display: none !important;
+}
+
+.long-term-section::before,
+.long-term-section::after {
+    content: none !important;
+    background-image: none !important;
+}
+
+/* =========================================================
+   長期閱讀趨勢－恢復背景圖片
+========================================================= */
+
+.long-term-section {
+    position: relative !important;
+
+    width: 100% !important;
+
+    background-image:
+        url("../assets/images/report-history-focus.png") !important;
+
+    background-size: 100% 100% !important;
+    background-position: center top !important;
+    background-repeat: no-repeat !important;
+}
+
+
+/* 三個切換區域本身不能有背景 */
+.history-chart-tabs {
+    background: transparent !important;
+    background-image: none !important;
+}
+
+
+/* 三個按鈕只負責點擊 */
+.history-tab {
+    background: transparent !important;
+    background-image: none !important;
+
+    border: none !important;
+    box-shadow: none !important;
+
+    color: transparent !important;
+
+    cursor: pointer;
+}
+
+/* =========================================================
+   長期閱讀趨勢背景
+========================================================= */
+
+.long-term-section {
+    position: relative !important;
+
+    width: 100% !important;
+
+    background-size: 100% 100% !important;
+    background-position: center top !important;
+    background-repeat: no-repeat !important;
+}
+
+
+/* 專注比例 */
+.long-term-section.history-focus {
+    background-image:
+        url("../assets/images/report-history-focus.png") !important;
+}
+
+
+/* 分心次數 */
+.long-term-section.history-distraction {
+    background-image:
+        url("../assets/images/report-history-distraction.png") !important;
+}
+
+
+/* 重新投入 */
+.long-term-section.history-reengagement {
+    background-image:
+        url("../assets/images/report-history-reengagement.png") !important;
+}
+
+
+/* 三個按鈕的外層 */
+.history-chart-tabs {
+    background: transparent !important;
+}
+
+
+/* 三個透明點擊按鈕 */
+.history-tab {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+
+    color: transparent !important;
+
+    cursor: pointer;
+}

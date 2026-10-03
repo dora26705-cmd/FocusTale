@@ -52,7 +52,7 @@
 ========================================================= */
 
 function startStory() {
-    window.location.href = "pages/story.html";
+    window.location.href = "assets/story.html";
 }
 
 function openReport() {
@@ -3955,6 +3955,206 @@ function showSearchStartButton(
     );
 
 }
+
+
+/* =========================================================
+   59. 專注行為分析：啟動攝影機
+========================================================= */
+
+let attentionCameraStream = null;
+
+
+async function startAttentionCamera() {
+
+    const camera =
+        document.getElementById(
+            "attentionCamera"
+        );
+
+
+    /*
+        如果這個頁面沒有攝影機元素，
+        就不執行。
+    */
+
+    if (!camera) {
+
+        return;
+
+    }
+
+
+    /*
+        確認瀏覽器支援攝影機功能。
+    */
+
+    if (
+        !navigator.mediaDevices ||
+        !navigator.mediaDevices.getUserMedia
+    ) {
+
+        console.log(
+            "這個瀏覽器不支援攝影機功能"
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+        /*
+            向使用者要求攝影機權限。
+        */
+
+        const stream =
+            await navigator.mediaDevices
+                .getUserMedia({
+
+                    video: {
+
+                        facingMode:
+                            "user"
+
+                    },
+
+                    audio: false
+
+                });
+
+
+        /*
+            保存攝影機串流。
+        */
+
+        attentionCameraStream =
+            stream;
+
+
+        /*
+            把攝影機畫面交給
+            attentionCamera。
+        */
+
+        camera.srcObject =
+            stream;
+
+
+        /*
+            等攝影機開始播放。
+        */
+
+        await camera.play();
+
+
+        console.log(
+            "FocusTale：攝影機啟動成功"
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "FocusTale：攝影機啟動失敗",
+            error
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   60. 關閉攝影機
+========================================================= */
+
+function stopAttentionCamera() {
+
+    if (!attentionCameraStream) {
+
+        return;
+
+    }
+
+
+    /*
+        關閉所有攝影機軌道。
+    */
+
+    attentionCameraStream
+        .getTracks()
+        .forEach(
+
+            function (track) {
+
+                track.stop();
+
+            }
+
+        );
+
+
+    attentionCameraStream =
+        null;
+
+
+    const camera =
+        document.getElementById(
+            "attentionCamera"
+        );
+
+
+    if (camera) {
+
+        camera.srcObject =
+            null;
+
+    }
+
+
+    console.log(
+        "FocusTale：攝影機已關閉"
+    );
+
+}
+
+
+/* =========================================================
+   61. 故事頁載入後啟動攝影機
+========================================================= */
+
+document.addEventListener(
+
+    "DOMContentLoaded",
+
+    function () {
+
+        const camera =
+            document.getElementById(
+                "attentionCamera"
+            );
+
+
+        /*
+            只有 story.html
+            有 attentionCamera，
+            所以其他頁面不會啟動攝影機。
+        */
+
+        if (camera) {
+
+            startAttentionCamera();
+
+        }
+
+    }
+
+);
+
+
+
 /* =========================================================
    FocusTale app.js
    程式結束

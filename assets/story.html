@@ -13,10 +13,11 @@
         小兔貝貝的森林尋友記｜FocusTale
     </title>
 
-    <link
+ <link
         rel="stylesheet"
         href="../style.css"
     >
+
 </head>
 
 
@@ -211,10 +212,90 @@
         </section>
 
     </main>
+    <!-- ================================
+         專注行為分析：攝影機
+
+         目前先用來測試是否能成功取得鏡頭。
+         正式使用時不顯示給小朋友看。
+    ================================= -->
+
+    <video
+        id="attentionCamera"
+        autoplay
+        playsinline
+        muted
+        style="display: none;"
+    ></video>
 
 
-    <script src="../app.js"></script>
+       <!-- ================================
+         專注偵測：開發測試狀態
+    ================================= -->
+
+   <div
+    id="attentionDebug"
+    class="attention-debug"
+    style="display: none;"
+>
+    <div id="attentionStatus">
+        🟡 正在準備專注偵測...
+    </div>
+
+    <div id="faceStatus">
+        👤 等待臉部偵測...
+    </div>
+
+    <div id="headDirectionStatus">
+        👀 頭部方向：未偵測
+    </div>
+
+    <div id="focusTimeStatus">
+    ⏱️ 面向畫面：0.0 秒
+</div>
+
+<div id="focusRatioStatus">
+    📊 面向比例：0.0%
+</div>
+
+
+<div id="distractionStatus">
+    ↪️ 分心次數：0 次
+</div>
+
+<div id="distractionDurationStatus">
+    ⏳ 本次分心：0.0 秒
+</div>
+
+<div id="reengagementStatus">
+    🔄 最近重新投入：尚無資料
+</div>
+
+<div id="averageReengagementStatus">
+    📊 平均重新投入：尚無資料
+</div>
+
+</div> <!-- attentionDebug 結束 -->
+
+
+<!-- 原本的故事程式 -->
+<script src="../app.js"></script>
+
+
+<!-- 專注行為分析程式 -->
+<script
+    type="module"
+    src="../attention.js"
+></script>
 
 </body>
 
 </html>
+
+/* =========================================================
+   隱藏專注偵測開發測試面板
+   偵測功能仍會在背景正常執行
+========================================================= */
+
+#attentionDebug {
+    display: none !important;
+}

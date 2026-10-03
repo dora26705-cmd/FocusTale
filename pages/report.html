@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        閱讀專注分析｜FocusTale
+    </title>
+
+    <!-- FocusTale 共用樣式 -->
+    <link
+        rel="stylesheet"
+        href="../style.css"
+    >
+
+</head>
+
+
+<body class="report-body">
+
+
+    <main class="report-page">
+
+
+        <!-- =================================================
+             ① 閱讀專注分析
+             背景：report-summary.png
+        ================================================== -->
+
+        <section class="report-summary-section">
+
+
+            <!-- 回首頁透明點擊區 -->
+
+            <button
+                class="report-home-button"
+                type="button"
+                onclick="window.location.href='../index.html'"
+                aria-label="回首頁"
+            >
+                回首頁
+            </button>
+
+
+            <!-- 四個動態數據 -->
+
+            <div class="report-summary-values">
+
+
+                <!-- 閱讀時間 -->
+
+                <div class="summary-value-position">
+
+                    <div
+                        id="summaryReadingTime"
+                        class="summary-value"
+                    >
+                        --
+                    </div>
+
+                </div>
+
+
+                <!-- 專注比例 -->
+
+                <div class="summary-value-position">
+
+                    <div
+                        id="summaryFocusRate"
+                        class="summary-value"
+                    >
+                        --
+                    </div>
+
+                </div>
+
+
+                <!-- 分心次數 -->
+
+                <div class="summary-value-position">
+
+                    <div
+                        id="summaryDistractionCount"
+                        class="summary-value"
+                    >
+                        --
+                    </div>
+
+                </div>
+
+
+                <!-- 平均重新投入 -->
+
+                <div class="summary-value-position">
+
+                    <div
+                        id="summaryReengagementTime"
+                        class="summary-value"
+                    >
+                        --
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- =================================================
+             ② 專注時間趨勢
+             背景：report-attention-chart.png
+        ================================================== -->
+
+        <section class="report-attention-section">
+
+
+            <!-- Chart.js 圖表 -->
+
+            <div class="attention-chart-container">
+
+                <canvas id="attentionChart"></canvas>
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- =================================================
+             ③ 六大行為分析
+             背景：report-behavior.png
+        ================================================== -->
+
+        <section
+            id="behaviorSummary"
+            class="behavior-analysis-section"
+        >
+
+
+            <div class="behavior-analysis-grid">
+
+
+                <!-- ① 持續注意 -->
+
+                <article class="behavior-card">
+
+                    <div
+                        id="behaviorAttention"
+                        class="behavior-card-value"
+                    >
+                        --
+                    </div>
+
+                </article>
+
+
+                <!-- ② 分心事件 -->
+
+                <article class="behavior-card">
+
+                    <div
+                        id="behaviorDistraction"
+                        class="behavior-card-value"
+                    >
+                        --
+                    </div>
+
+                </article>
+
+
+                <!-- ③ 重新投入 -->
+
+                <article class="behavior-card">
+
+                    <div
+                        id="behaviorReengagement"
+                        class="behavior-card-value"
+                    >
+                        --
+                    </div>
+
+                </article>
+
+
+                <!-- ④ 視覺方向 -->
+
+                <article class="behavior-card">
+
+                    <div
+                        id="behaviorDirection"
+                        class="behavior-card-value"
+                    >
+                        --
+                    </div>
+
+                </article>
+
+
+                <!-- ⑤ 任務反應 -->
+
+                <article class="behavior-card">
+
+                    <div
+                        id="behaviorInteraction"
+                        class="behavior-card-value"
+                    >
+                        --
+                    </div>
+
+                </article>
+
+
+                <!-- ⑥ 故事理解 -->
+
+<article class="behavior-card">
+
+    <div
+        id="behaviorComprehension"
+        class="behavior-card-value comprehension-value"
+    >
+
+        <!-- 第一個白框：回答結果 -->
+        <div id="comprehensionResult">
+            --
+        </div>
+
+        <!-- 第二個白框：選擇答案 -->
+        <div id="comprehensionAnswer">
+            --
+        </div>
+
+        <!-- 第三個白框：反應時間 -->
+        <div id="comprehensionTime">
+            --
+        </div>
+
+    </div>
+
+</article>
+
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- =================================================
+             ④ 長期閱讀趨勢
+             背景：report-history.png
+        ================================================== -->
+
+        <section class="long-term-section">
+
+
+            <!-- 三個透明切換按鈕 -->
+
+            <div class="history-chart-tabs">
+
+
+                <!-- 專注比例 -->
+
+                <button
+                    type="button"
+                    class="history-tab active"
+                    data-history-type="focus"
+                    aria-label="專注比例"
+                >
+                    專注比例
+                </button>
+
+
+                <!-- 分心次數 -->
+
+                <button
+                    type="button"
+                    class="history-tab"
+                    data-history-type="distraction"
+                    aria-label="分心次數"
+                >
+                    分心次數
+                </button>
+
+
+                <!-- 重新投入 -->
+
+                <button
+                    type="button"
+                    class="history-tab"
+                    data-history-type="reengagement"
+                    aria-label="重新投入"
+                >
+                    重新投入
+                </button>
+
+
+            </div>
+
+
+            <!-- 長期趨勢 Chart.js -->
+
+            <div class="long-term-chart-container">
+
+                <canvas id="focusHistoryChart"></canvas>
+
+            </div>
+
+
+        </section>
+
+
+    </main>
+
+
+
+    <!-- =================================================
+         Chart.js
+         必須先載入 Chart.js
+    ================================================== -->
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/chart.js"
+    ></script>
+
+
+    <!-- =================================================
+         FocusTale 主程式
+    ================================================== -->
+
+    <script src="../app.js"></script>
+
+
+    <!-- =================================================
+         報告頁程式
+         必須放在 Chart.js 後面
+    ================================================== -->
+
+    <script src="../report.js"></script>
+
+
+</body>
+
+</html>
