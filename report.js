@@ -1712,4 +1712,5 @@ historyTabs.forEach(
         );
 
     }
+    
 );

@@ -1194,10 +1194,15 @@ function saveAttentionAnalysis() {
 
 function detectFace() {
 
-    /*
-        MediaPipe 或攝影機還沒準備好
-    */
-
+    console.log(
+    "【攝影機檢查】",
+    {
+        faceLandmarker: !!faceLandmarker,
+        camera: !!camera,
+        readyState: camera ? camera.readyState : "沒有 camera",
+        currentTime: camera ? camera.currentTime : "沒有 camera"
+    }
+);
     if (
         !faceLandmarker ||
         !camera
@@ -1479,14 +1484,204 @@ window.addEventListener(
 );
 
 /* =========================================================
-   離開故事頁面前保存最後一次資料
+   離開故事頁面前，保存最後一次專注資料
+========================================================= */
+
+let finalAttentionDataSaved = false;
+
+function saveFinalAttentionData() {
+
+    /*
+        避免 pagehide 重複執行
+    */
+    if (finalAttentionDataSaved) {
+        return;
+    }
+
+    finalAttentionDataSaved = true;
+
+
+    /*
+        如果專注偵測還沒開始，
+        就直接保存目前已有的資料
+    */
+    if (attentionStartTime === null) {
+
+        updateStoryInteractionData();
+
+        saveAttentionAnalysis();
+
+        return;
+    }
+
+
+    /*
+        補上離開前最後一段專注時間
+    */
+    updateAttentionTime();
+
+
+    /*
+        補上最後一段頭部方向時間
+    */
+    updateHeadDirectionTime();
+
+
+    /*
+        最後再同步一次故事互動資料
+    */
+    updateStoryInteractionData();
+
+
+    /*
+        補最後一筆專注歷程
+    */
+    const now =
+        performance.now();
+
+    const elapsedTime =
+        (
+            now -
+            attentionStartTime
+        ) / 1000;
+
+
+    attentionTimeline.push({
+
+        time:
+            Number(
+                elapsedTime.toFixed(1)
+            ),
+
+        direction:
+            currentHeadDirection,
+
+        focused:
+            currentHeadDirection ===
+            "CENTER",
+
+        distracted:
+            isDistracted
+
+    });
+
+
+    /*
+        如果離開時正在正式分心，
+        把尚未結束的這次分心也保存下來
+    */
+    if (
+        isDistracted &&
+        distractionStartTime !== null
+    ) {
+
+        const duration =
+            (
+                now -
+                distractionStartTime
+            ) / 1000;
+
+
+        const unfinishedEvent = {
+
+            startTime:
+                (
+                    distractionStartTime -
+                    attentionStartTime
+                ) / 1000,
+
+            duration:
+                duration,
+
+            unfinished:
+                true
+
+        };
+
+
+        /*
+            不直接修改 distractionEvents，
+            避免影響原本正在執行的偵測。
+        */
+        behaviorAnalysis.distraction.events = [
+            ...distractionEvents,
+            unfinishedEvent
+        ];
+
+
+        behaviorAnalysis.distraction.totalTime =
+            behaviorAnalysis.distraction.events.reduce(
+
+                function (total, event) {
+
+                    return (
+                        total +
+                        event.duration
+                    );
+
+                },
+
+                0
+
+            );
+
+    }
+
+    else {
+
+        behaviorAnalysis.distraction.events =
+            [...distractionEvents];
+
+
+        behaviorAnalysis.distraction.totalTime =
+            distractionEvents.reduce(
+
+                function (total, event) {
+
+                    return (
+                        total +
+                        event.duration
+                    );
+
+                },
+
+                0
+
+            );
+
+    }
+
+
+    /*
+        確保最後的分心次數正確
+    */
+    behaviorAnalysis.distraction.count =
+        distractionCount;
+
+
+    /*
+        保存最後完整資料
+    */
+    saveAttentionAnalysis();
+
+
+    console.log(
+        "FocusTale：離開故事頁面前，最後資料已保存",
+        behaviorAnalysis
+    );
+
+}
+
+
+/* =========================================================
+   頁面即將離開
 ========================================================= */
 
 window.addEventListener(
     "pagehide",
     function () {
 
-        saveAttentionAnalysis();
+        saveFinalAttentionData();
 
     }
 );
